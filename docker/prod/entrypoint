@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
 
-npx prisma generate
 npm run database:migrate
 npm run start:prod

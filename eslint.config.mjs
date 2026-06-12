@@ -34,6 +34,6 @@ export default tseslint.config(
         },
     },
     {
-        ignores: ['eslint.config.mjs', 'prisma/client', 'cucumber.js', 'dist'],
+        ignores: ['eslint.config.mjs', 'cucumber.js', 'dist'],
     },
 );
