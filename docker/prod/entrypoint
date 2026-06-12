@@ -1,4 +1,9 @@
 #!/usr/bin/env sh
+set -e
 
-npm run database:migrate
+until npm run migration:run:prod; do
+  echo "Database not ready, retrying migrations in 2s..."
+  sleep 2
+done
+
 npm run start:prod
