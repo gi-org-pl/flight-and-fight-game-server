@@ -16,8 +16,5 @@ indent_size = 2
 [*.yaml]
 indent_size = 2
 
-[*.prisma]
-indent_size = 2
-
 [*.feature]
 indent_size = 2

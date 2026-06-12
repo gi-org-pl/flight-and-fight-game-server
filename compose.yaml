@@ -13,7 +13,7 @@ services:
       - .:/app
       - ./node_modules:/app/node_modules
     ports:
-      - '80:3000'
+      - '2137:3000'
     healthcheck:
       test: 'curl --fail http://localhost:3000 || exit 1'
       interval: 1s
@@ -28,7 +28,7 @@ services:
       POSTGRES_PASSWORD: 'pass'
       POSTGRES_DB: 'app'
     ports:
-      - '5432:5432'
+      - '54320:5432'
     healthcheck:
       test: 'pg_isready -U user -d app'
       interval: 1s

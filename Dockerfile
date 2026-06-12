@@ -4,7 +4,6 @@ RUN apk --no-cache add curl
 FROM alpine-node-base AS development
 WORKDIR /app
 COPY --chown=node:node package*.json ./
-COPY --chown=node:node prisma ./prisma
 RUN npm ci
 COPY --chown=node:node . .
 ENTRYPOINT ["./docker/dev/entrypoint"]
@@ -12,18 +11,15 @@ ENTRYPOINT ["./docker/dev/entrypoint"]
 FROM alpine-node-base AS build
 WORKDIR /app
 COPY --chown=node:node package*.json ./
-COPY --chown=node:node prisma ./prisma
 COPY --chown=node:node --from=development /app/node_modules ./node_modules
 COPY --chown=node:node . .
-RUN npx prisma generate && npm run build
+RUN npm run build
 ENV NODE_ENV="production"
 RUN npm ci --omit=dev && npm cache clean --force
 USER node
 
 FROM alpine-node-base AS production
 COPY --chown=node:node docker/prod ./docker/prod
-COPY --chown=node:node prisma ./prisma
-COPY --chown=node:node prisma.config.ts ./
 COPY --chown=node:node package.json ./
 COPY --chown=node:node --from=build /app/node_modules ./node_modules
 COPY --chown=node:node --from=build /app/dist ./dist
