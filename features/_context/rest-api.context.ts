@@ -1,4 +1,4 @@
-import { When, Then, Given, After } from '@cucumber/cucumber';
+import { When, Then, Given, After, BeforeAll } from '@cucumber/cucumber';
 import axios, { AxiosResponse } from 'axios';
 import expect from 'expect';
 import { execSync } from 'child_process';
@@ -8,8 +8,24 @@ const apiBaseUrl = 'http://localhost:3000';
 let apiToken: string | null = null;
 let apiResponse: AxiosResponse;
 
+BeforeAll({ timeout: 60 * 1000 }, async () => {
+  const deadline = Date.now() + 45 * 1000;
+
+  while (true) {
+    try {
+      await axios.get(apiBaseUrl, { validateStatus: () => true });
+      return;
+    } catch {
+      if (Date.now() > deadline) {
+        throw new Error(`API at ${apiBaseUrl} is not reachable`);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+});
+
 Given('I use seed data', () => {
-  execSync('npx prisma migrate reset --force --skip-generate > /dev/null');
+  execSync('npm run database:seed > /dev/null');
 });
 
 Given('I use admin token', async () => {

@@ -1,10 +1,16 @@
 import expect from 'expect';
 import { validate as isUuid } from 'uuid';
+import { isValid as isUlid } from 'ulidx';
 import * as pack from '../../package.json';
 
 export const deepCompare = (actual: any, expected: any) => {
   if (expected === '@uuid') {
     expect(isUuid(actual)).toBe(true);
+    return;
+  }
+
+  if (expected === '@ulid') {
+    expect(isUlid(actual)).toBe(true);
     return;
   }
 
