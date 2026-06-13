@@ -14,18 +14,25 @@ import { GetMyCharactersController } from './infra/rest/get-my-characters.contro
 import { GetCharactersController } from './infra/rest/get-characters.controller';
 import { CreateSessionHandler } from './application/command/create-session.command';
 import { JoinSessionHandler } from './application/command/join-session.command';
+import { AdvanceTurnHandler } from './application/command/advance-turn.command';
 import { GetSessionHandler } from './application/query/get-session.query';
 import { GetSessionByJoinCodeHandler } from './application/query/get-session-by-join-code.query';
 import { GetMyCharactersHandler } from './application/query/get-my-characters.query';
 import { GetCharactersHandler } from './application/query/get-characters.query';
+import { AttackDefendedHandler } from './application/event/attack-defended.handler';
 
-const CommandHandlers = [CreateSessionHandler, JoinSessionHandler];
+const CommandHandlers = [
+  CreateSessionHandler,
+  JoinSessionHandler,
+  AdvanceTurnHandler,
+];
 const QueryHandlers = [
   GetSessionHandler,
   GetSessionByJoinCodeHandler,
   GetMyCharactersHandler,
   GetCharactersHandler,
 ];
+const EventHandlers = [AttackDefendedHandler];
 
 @Module({
   imports: [
@@ -45,6 +52,7 @@ const QueryHandlers = [
     PlayerGuard,
     ...CommandHandlers,
     ...QueryHandlers,
+    ...EventHandlers,
   ],
 })
 export class SessionModule {}

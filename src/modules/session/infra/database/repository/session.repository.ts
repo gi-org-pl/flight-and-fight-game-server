@@ -37,6 +37,13 @@ export class SessionRepository {
     return !!result.affected;
   }
 
+  async setCurrentlyAttacking(id: string, playerId: string): Promise<void> {
+    await this.sessions.update(
+      { id },
+      { currentlyAttackingPlayerId: playerId },
+    );
+  }
+
   findById(id: string): Promise<Session | null> {
     return this.sessions.findOne({ where: { id } });
   }

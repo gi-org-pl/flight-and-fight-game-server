@@ -1,0 +1,242 @@
+asyncapi: 3.0.0
+
+info:
+  title: Flight and Fight game WebSocket API
+  version: 0.6.0
+  description: >
+    Real-time game channel (socket.io). Two players connect to the same
+    session, take turns attacking and defending, and the turn alternates after
+    each completed exchange.
+
+
+    Authentication is performed during the socket.io handshake: pass
+    `auth: { token: <playerId>, sessionId: <sessionId> }`. The connection is
+    rejected with a `connect_error` ("Unauthorized") unless the token is a valid
+    player id that belongs to the given session.
+
+servers:
+  game:
+    host: localhost:3000
+    pathname: /game
+    protocol: socket.io
+    description: Local development. The socket.io namespace is `/game`.
+
+channels:
+  game:
+    address: /game
+    title: Game channel
+    description: Per-session channel; each player joins a room named by the session id.
+    messages:
+      attack:
+        $ref: '#/components/messages/attack'
+      defend:
+        $ref: '#/components/messages/defend'
+      session:
+        $ref: '#/components/messages/session'
+      attacked:
+        $ref: '#/components/messages/attacked'
+      charactersUpdated:
+        $ref: '#/components/messages/charactersUpdated'
+      turnChanged:
+        $ref: '#/components/messages/turnChanged'
+      exception:
+        $ref: '#/components/messages/exception'
+
+operations:
+  attack:
+    action: receive
+    channel:
+      $ref: '#/channels/game'
+    summary: The attacking player declares an attack.
+    description: >
+      Emitted by the player whose turn it is (`currentlyAttackingPlayerId`).
+      Rejected with an `exception` if it is not the sender's turn or an attack
+      is already awaiting defense.
+    messages:
+      - $ref: '#/channels/game/messages/attack'
+  defend:
+    action: receive
+    channel:
+      $ref: '#/channels/game'
+    summary: The defending player defends, completing the exchange.
+    description: >
+      Emitted by the non-attacking player after an attack. Completes the turn,
+      flipping `currentlyAttackingPlayerId` to the other player. Rejected with an
+      `exception` if the sender is the attacker or no attack is pending.
+    messages:
+      - $ref: '#/channels/game/messages/defend'
+  session:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    summary: Current session state, sent to a player right after they connect.
+    messages:
+      - $ref: '#/channels/game/messages/session'
+  attacked:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    summary: Broadcast to the room when the attacker declares an attack.
+    messages:
+      - $ref: '#/channels/game/messages/attacked'
+  charactersUpdated:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    summary: Sent to the defending player after an attack with their characters' stats.
+    messages:
+      - $ref: '#/channels/game/messages/charactersUpdated'
+  turnChanged:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    summary: Broadcast to the room with the updated session after the turn flips.
+    messages:
+      - $ref: '#/channels/game/messages/turnChanged'
+  exception:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    summary: Sent to a player whose action was rejected.
+    messages:
+      - $ref: '#/channels/game/messages/exception'
+
+components:
+  messages:
+    attack:
+      name: attack
+      title: Attack
+      summary: Declare an attack (no payload).
+      payload:
+        $ref: '#/components/schemas/EmptyPayload'
+    defend:
+      name: defend
+      title: Defend
+      summary: Defend against the pending attack (no payload).
+      payload:
+        $ref: '#/components/schemas/EmptyPayload'
+    session:
+      name: session
+      title: Session state
+      payload:
+        $ref: '#/components/schemas/Session'
+    attacked:
+      name: attacked
+      title: Attack declared
+      payload:
+        $ref: '#/components/schemas/Attacked'
+    charactersUpdated:
+      name: charactersUpdated
+      title: Updated characters
+      payload:
+        $ref: '#/components/schemas/CharacterList'
+    turnChanged:
+      name: turnChanged
+      title: Turn changed
+      payload:
+        $ref: '#/components/schemas/Session'
+    exception:
+      name: exception
+      title: Error
+      payload:
+        $ref: '#/components/schemas/Exception'
+
+  schemas:
+    EmptyPayload:
+      type: object
+      additionalProperties: false
+
+    Ulid:
+      type: string
+      example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
+
+    SessionState:
+      type: string
+      enum:
+        - OPEN
+        - CLOSED
+
+    Session:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Ulid'
+        state:
+          $ref: '#/components/schemas/SessionState'
+        firstPlayerId:
+          $ref: '#/components/schemas/Ulid'
+        secondPlayerId:
+          type: string
+          nullable: true
+        currentlyAttackingPlayerId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Attacked:
+      type: object
+      properties:
+        attackingPlayerId:
+          $ref: '#/components/schemas/Ulid'
+
+    CharacterType:
+      type: string
+      enum:
+        - IRIS
+        - ZEPHYR
+        - WENDY
+        - SKYE
+        - SUNNY
+        - AURA
+        - NEIL
+        - GALE
+        - THORA
+        - VEGA
+
+    CharacterStats:
+      type: object
+      properties:
+        intelligence:
+          type: integer
+        defense:
+          type: integer
+        power:
+          type: integer
+        health:
+          type: integer
+        refresh:
+          type: integer
+
+    Character:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/CharacterType'
+        stats:
+          $ref: '#/components/schemas/CharacterStats'
+
+    CharacterList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Character'
+
+    Exception:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: It is not your turn to attack.
+        cause:
+          type: object
+          properties:
+            pattern:
+              type: string
+              example: attack
