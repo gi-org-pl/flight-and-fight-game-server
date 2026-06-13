@@ -28,4 +28,12 @@ export class GetSessionResponse {
     nullable: true,
   })
   secondPlayerId: string | null;
+
+  @ApiProperty({
+    description:
+      'ULID of the player whose turn it is to attack, null while still OPEN; the initiator attacks first',
+    example: '01ARZ3NDEKTSV4RRFFQ69G5FBW',
+    nullable: true,
+  })
+  currentlyAttackingPlayerId: string | null;
 }

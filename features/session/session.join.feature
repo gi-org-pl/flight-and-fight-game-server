@@ -19,6 +19,29 @@ Feature: As a player I can join a game session
       }
       """
 
+  Scenario: Joining a session makes the initiator attack first
+    When I send a "POST" request to "/sessions/000000S1/join" with body:
+      """
+      {
+        "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
+      }
+      """
+    Then the response status should be 201
+    When I send a "GET" request to "/sessions/01HRESEED000000000000000S1"
+    Then the response status should be 200
+    And the response body should contain:
+      """
+      {
+        "id": "01HRESEED000000000000000S1",
+        "state": "CLOSED",
+        "firstPlayerId": "01HRESEED0000000000000P101",
+        "secondPlayerId": "@ulid",
+        "currentlyAttackingPlayerId": "01HRESEED0000000000000P101",
+        "createdAt": "@date('within 1 minute from now')",
+        "updatedAt": "@date('within 1 minute from now')"
+      }
+      """
+
   Scenario: I cannot join a session that is already full
     When I send a "POST" request to "/sessions/000000S2/join" with body:
       """

@@ -13,6 +13,7 @@ Feature: As a player I can read a game session
         "state": "OPEN",
         "firstPlayerId": "01HRESEED0000000000000P101",
         "secondPlayerId": null,
+        "currentlyAttackingPlayerId": null,
         "createdAt": "@date('within 1 minute from now')",
         "updatedAt": "@date('within 1 minute from now')"
       }
@@ -28,6 +29,7 @@ Feature: As a player I can read a game session
         "state": "CLOSED",
         "firstPlayerId": "01HRESEED0000000000000P201",
         "secondPlayerId": "01HRESEED0000000000000P202",
+        "currentlyAttackingPlayerId": "01HRESEED0000000000000P201",
         "createdAt": "@date('within 1 minute from now')",
         "updatedAt": "@date('within 1 minute from now')"
       }

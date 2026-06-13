@@ -35,6 +35,10 @@ export class JoinSessionHandler implements ICommandHandler<JoinSessionCommand> {
     }
 
     await this.players.create(secondPlayerId, characters);
-    await this.sessions.claimSecondSlot(sessionId, secondPlayerId);
+    await this.sessions.claimSecondSlot(
+      sessionId,
+      secondPlayerId,
+      session.firstPlayerId,
+    );
   }
 }
