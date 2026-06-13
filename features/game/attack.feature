@@ -18,11 +18,23 @@ Feature: As a player I attack and defend in real time
     And player "01HRESEED0000000000000P202" receives "charactersUpdated" with:
       """
       [
-        { "type": "IRIS", "stats": { "intelligence": 4, "defense": 3, "power": 3, "health": 5, "refresh": 6 } },
-        { "type": "SKYE", "stats": { "intelligence": 5, "defense": 5, "power": 6, "health": 6, "refresh": 6 } },
-        { "type": "SUNNY", "stats": { "intelligence": 6, "defense": 4, "power": 7, "health": 5, "refresh": 7 } },
-        { "type": "THORA", "stats": { "intelligence": 9, "defense": 6, "power": 8, "health": 8, "refresh": 9 } },
-        { "type": "VEGA", "stats": { "intelligence": 8, "defense": 9, "power": 10, "health": 10, "refresh": 5 } }
+        {
+          "type": "IRIS",
+          "superpower": "LIGHT",
+          "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }
+        },
+        { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 } },
+        {
+          "type": "SUNNY",
+          "superpower": "FIRE",
+          "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }
+        },
+        {
+          "type": "THORA",
+          "superpower": "ELECTRIC",
+          "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }
+        },
+        { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 } }
       ]
       """
     When player "01HRESEED0000000000000P202" emits "defend"
