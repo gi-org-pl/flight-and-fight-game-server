@@ -5,7 +5,7 @@ Feature: As a player I can see my selected characters
 
   Scenario: I see my characters with their stats
     Given I identify as player "01HRESEED0000000000000P101"
-    When I send a "GET" request to "/my-characters"
+    When I send a "GET" request to "/api/v1/my-characters"
     Then the response status should be 200
     And the response body should contain:
       """
@@ -20,7 +20,7 @@ Feature: As a player I can see my selected characters
 
   Scenario: I cannot see characters for a player that does not exist
     Given I identify as player "01ARZ3NDEKTSV4RRFFQ69G5FAV"
-    When I send a "GET" request to "/my-characters"
+    When I send a "GET" request to "/api/v1/my-characters"
     Then the response status should be 401
     And the response body should contain:
       """
@@ -31,7 +31,7 @@ Feature: As a player I can see my selected characters
       """
 
   Scenario: I cannot see characters without identifying myself
-    When I send a "GET" request to "/my-characters"
+    When I send a "GET" request to "/api/v1/my-characters"
     Then the response status should be 401
     And the response body should contain:
       """
@@ -43,7 +43,7 @@ Feature: As a player I can see my selected characters
 
   Scenario: I cannot see characters with a malformed player id
     Given I identify as player "not-a-ulid"
-    When I send a "GET" request to "/my-characters"
+    When I send a "GET" request to "/api/v1/my-characters"
     Then the response status should be 401
     And the response body should contain:
       """

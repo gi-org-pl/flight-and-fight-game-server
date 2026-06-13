@@ -4,7 +4,7 @@ Feature: As a player I can join a game session
     Given I use seed data
 
   Scenario: I join an open session using its join code
-    When I send a "POST" request to "/sessions/000000S1/join" with body:
+    When I send a "POST" request to "/api/v1/sessions/000000S1/join" with body:
       """
       {
         "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
@@ -20,14 +20,14 @@ Feature: As a player I can join a game session
       """
 
   Scenario: Joining a session makes the initiator attack first
-    When I send a "POST" request to "/sessions/000000S1/join" with body:
+    When I send a "POST" request to "/api/v1/sessions/000000S1/join" with body:
       """
       {
         "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
       }
       """
     Then the response status should be 201
-    When I send a "GET" request to "/sessions/01HRESEED000000000000000S1"
+    When I send a "GET" request to "/api/v1/sessions/01HRESEED000000000000000S1"
     Then the response status should be 200
     And the response body should contain:
       """
@@ -43,7 +43,7 @@ Feature: As a player I can join a game session
       """
 
   Scenario: I cannot join a session that is already full
-    When I send a "POST" request to "/sessions/000000S2/join" with body:
+    When I send a "POST" request to "/api/v1/sessions/000000S2/join" with body:
       """
       {
         "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
@@ -60,7 +60,7 @@ Feature: As a player I can join a game session
       """
 
   Scenario: I cannot join with a join code that matches no session
-    When I send a "POST" request to "/sessions/ZZZZZZZZ/join" with body:
+    When I send a "POST" request to "/api/v1/sessions/ZZZZZZZZ/join" with body:
       """
       {
         "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
@@ -77,7 +77,7 @@ Feature: As a player I can join a game session
       """
 
   Scenario: I cannot join with a malformed join code
-    When I send a "POST" request to "/sessions/not-a-ulid/join" with body:
+    When I send a "POST" request to "/api/v1/sessions/not-a-ulid/join" with body:
       """
       {
         "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
@@ -94,7 +94,7 @@ Feature: As a player I can join a game session
       """
 
   Scenario: I cannot join with fewer than 5 characters
-    When I send a "POST" request to "/sessions/000000S1/join" with body:
+    When I send a "POST" request to "/api/v1/sessions/000000S1/join" with body:
       """
       {
         "characters": ["IRIS", "SKYE", "SUNNY", "THORA"]

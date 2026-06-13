@@ -17,7 +17,7 @@ import { GenericNotFoundResponse } from '../../../../core/infra/http/response/no
 import { JoinCodeParam } from '../../../../core/infra/http/validation/decorator/join-code-param.decorator';
 
 @ApiTags('sessions')
-@Controller('sessions')
+@Controller('api/v1/sessions')
 export class JoinSessionController {
   constructor(
     private readonly commandBus: CommandBus,
