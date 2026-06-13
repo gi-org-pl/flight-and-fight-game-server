@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Repository } from 'typeorm';
+import { IsNull, Like, Repository } from 'typeorm';
 import { Session, SessionState } from './session.entity';
 
 @Injectable()
@@ -31,5 +31,9 @@ export class SessionRepository {
 
   findById(id: string): Promise<Session | null> {
     return this.sessions.findOne({ where: { id } });
+  }
+
+  findByJoinCode(joinCode: string): Promise<Session | null> {
+    return this.sessions.findOne({ where: { id: Like(`%${joinCode}`) } });
   }
 }

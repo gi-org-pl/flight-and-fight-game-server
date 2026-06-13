@@ -9,9 +9,10 @@ import { GetSessionController } from './infra/rest/get-session.controller';
 import { CreateSessionHandler } from './application/command/create-session.command';
 import { JoinSessionHandler } from './application/command/join-session.command';
 import { GetSessionHandler } from './application/query/get-session.query';
+import { GetSessionByJoinCodeHandler } from './application/query/get-session-by-join-code.query';
 
 const CommandHandlers = [CreateSessionHandler, JoinSessionHandler];
-const QueryHandlers = [GetSessionHandler];
+const QueryHandlers = [GetSessionHandler, GetSessionByJoinCodeHandler];
 
 @Module({
   imports: [CqrsModule, TypeOrmModule.forFeature([Session])],
