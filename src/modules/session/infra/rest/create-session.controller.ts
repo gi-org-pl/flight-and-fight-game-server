@@ -1,8 +1,9 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ulid } from 'ulidx';
 import { CreateSessionCommand } from '../../application/command/create-session.command';
+import { SelectCharactersRequest } from './dto/select-characters.request';
 import { SessionCredentialsResponse } from './dto/session-credentials.response';
 
 @ApiTags('sessions')
@@ -13,12 +14,14 @@ export class CreateSessionController {
   @Post()
   @ApiOperation({ summary: 'Creates a new game session as the first player' })
   @ApiCreatedResponse({ type: SessionCredentialsResponse })
-  async create(): Promise<SessionCredentialsResponse> {
+  async create(
+    @Body() body: SelectCharactersRequest,
+  ): Promise<SessionCredentialsResponse> {
     const sessionId = ulid();
     const playerId = ulid();
 
     await this.commandBus.execute(
-      new CreateSessionCommand(sessionId, playerId),
+      new CreateSessionCommand(sessionId, playerId, body.characters),
     );
 
     return { sessionId, playerId };

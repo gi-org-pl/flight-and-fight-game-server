@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from 'src/app.module';
-import { configureInputValidation } from './core/validation/validation.config';
-import { configureSwagger } from './core/http/swagger/swagger.config';
-import { configureCors } from './core/http/cors/cors.config';
+import { configureInputValidation } from './core/infra/http/validation/validation.config';
+import { configureSwagger } from './core/infra/http/swagger/swagger.config';
+import { configureCors } from './core/infra/http/cors/cors.config';
 import { INestApplication } from '@nestjs/common';
 
 (async function bootstrap() {

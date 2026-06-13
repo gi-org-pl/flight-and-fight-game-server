@@ -17,3 +17,9 @@ export class SessionNotOpenError extends ConflictException {
     super('Session is not open for joining.');
   }
 }
+
+export class PlayerNotFoundError extends NotFoundException {
+  constructor() {
+    super('Player with given id does not exist.');
+  }
+}

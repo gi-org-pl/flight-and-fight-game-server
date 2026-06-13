@@ -1,8 +1,18 @@
-import dataSource from '../../src/core/database/data-source';
+import dataSource from '../../src/core/infra/database/data-source';
 import {
   Session,
   SessionState,
-} from '../../src/modules/session/infra/database/session.entity';
+} from '../../src/modules/session/infra/database/entity/session.entity';
+import { Player } from '../../src/modules/session/infra/database/entity/player.entity';
+import { CharacterType } from '../../src/modules/session/model/character/character.model';
+
+const seedCharacters = [
+  CharacterType.IRIS,
+  CharacterType.SKYE,
+  CharacterType.SUNNY,
+  CharacterType.THORA,
+  CharacterType.VEGA,
+];
 
 export const seedSessions = {
   open: {
@@ -20,6 +30,18 @@ async function seed(): Promise<void> {
   await dataSource.initialize();
   await dataSource.dropDatabase();
   await dataSource.runMigrations();
+
+  const players = dataSource.getRepository(Player);
+  await players.save(
+    [
+      seedSessions.open.firstPlayerId,
+      seedSessions.closed.firstPlayerId,
+      seedSessions.closed.secondPlayerId,
+    ].map((id) => ({
+      id,
+      characters: seedCharacters.map((characterType) => ({ characterType })),
+    })),
+  );
 
   const sessions = dataSource.getRepository(Session);
   await sessions.insert([
