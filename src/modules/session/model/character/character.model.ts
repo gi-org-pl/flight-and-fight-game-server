@@ -11,15 +11,29 @@ export enum CharacterType {
   VEGA = 'VEGA',
 }
 
+export enum CharacterElement {
+  LIGHT = 'LIGHT',
+  DARK = 'DARK',
+  FIRE = 'FIRE',
+  GRASS = 'GRASS',
+  WATER = 'WATER',
+  ELECTRIC = 'ELECTRIC',
+  AIR = 'AIR',
+  GROUND = 'GROUND',
+  ICE = 'ICE',
+}
+
 export interface CharacterStats {
-  intelligence: number;
-  defense: number;
-  power: number;
   health: number;
-  refresh: number;
+  power: number;
+  defense: number;
+  intelligence: number;
 }
 
 export interface Character {
   type: CharacterType;
+  element: CharacterElement;
   stats: CharacterStats;
+  strong?: CharacterElement;
+  weak?: CharacterElement;
 }
