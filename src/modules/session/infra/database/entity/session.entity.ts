@@ -25,6 +25,9 @@ export class Session {
   @Column({ type: 'varchar', nullable: true })
   secondPlayerId: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  currentlyAttackingPlayerId: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

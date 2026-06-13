@@ -20,10 +20,18 @@ export class SessionRepository {
     return this.sessions.save(entity);
   }
 
-  async claimSecondSlot(id: string, secondPlayerId: string): Promise<boolean> {
+  async claimSecondSlot(
+    id: string,
+    secondPlayerId: string,
+    attackingPlayerId: string,
+  ): Promise<boolean> {
     const result = await this.sessions.update(
       { id, state: SessionState.OPEN, secondPlayerId: IsNull() },
-      { secondPlayerId, state: SessionState.CLOSED },
+      {
+        secondPlayerId,
+        state: SessionState.CLOSED,
+        currentlyAttackingPlayerId: attackingPlayerId,
+      },
     );
 
     return !!result.affected;

@@ -50,12 +50,14 @@ async function seed(): Promise<void> {
       state: SessionState.OPEN,
       firstPlayerId: seedSessions.open.firstPlayerId,
       secondPlayerId: null,
+      currentlyAttackingPlayerId: null,
     },
     {
       id: seedSessions.closed.id,
       state: SessionState.CLOSED,
       firstPlayerId: seedSessions.closed.firstPlayerId,
       secondPlayerId: seedSessions.closed.secondPlayerId,
+      currentlyAttackingPlayerId: seedSessions.closed.firstPlayerId,
     },
   ]);
 
