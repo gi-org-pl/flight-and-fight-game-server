@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CharacterType } from '../../../model/character/character.model';
+import { Character } from '../../../model/character/character.model';
 import { Player } from '../entity/player.entity';
 import { PlayerCharacter } from '../entity/player-character.entity';
 
@@ -20,10 +20,18 @@ export class PlayerRepository {
     return this.players.save(player);
   }
 
-  async setCharacters(id: string, characters: CharacterType[]): Promise<void> {
+  async setCharacters(id: string, characters: Character[]): Promise<void> {
     await this.characters.delete({ playerId: id });
     await this.characters.insert(
-      characters.map((characterType) => ({ playerId: id, characterType })),
+      characters.map((character) => ({
+        playerId: id,
+        characterType: character.type,
+        superpower: character.superpower,
+        intelligence: character.stats.intelligence,
+        defense: character.stats.defense,
+        power: character.stats.power,
+        health: character.stats.health,
+      })),
     );
   }
 

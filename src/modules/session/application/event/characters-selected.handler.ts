@@ -2,6 +2,7 @@ import { EventBus, EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { CharactersSelectedEvent } from '../../../game/model/event/characters-selected.event';
 import { SessionRepository } from '../../infra/database/repository/session.repository';
 import { PlayerRepository } from '../../infra/database/repository/player.repository';
+import { getCharacter } from '../../model/character/character.catalog';
 import { GameReadyEvent } from '../../model/event/game-ready.event';
 
 @EventsHandler(CharactersSelectedEvent)
@@ -15,7 +16,7 @@ export class CharactersSelectedHandler implements IEventHandler<CharactersSelect
   async handle(event: CharactersSelectedEvent): Promise<void> {
     const { sessionId, playerId, characters } = event;
 
-    await this.players.setCharacters(playerId, characters);
+    await this.players.setCharacters(playerId, characters.map(getCharacter));
 
     const session = await this.sessions.findById(sessionId);
     if (!session || session.secondPlayerId === null) {
