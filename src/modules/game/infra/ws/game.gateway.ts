@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import {
   ConnectedSocket,
@@ -29,6 +30,8 @@ interface GameSocket extends Socket {
 export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer()
   private readonly server: Server;
+
+  private readonly logger = new Logger(GameGateway.name);
 
   private readonly pendingAttacks = new Set<string>();
 
@@ -65,6 +68,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
 
     this.pendingAttacks.add(sessionId);
     this.server.to(sessionId).emit('attacked', { attackingPlayerId: playerId });
+    this.logger.log(`Player ${playerId} attacked in session ${sessionId}`);
 
     const defenderId = this.opponentOf(session, playerId);
     const characters = await this.queryBus.execute<
@@ -87,6 +91,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     }
 
     this.pendingAttacks.delete(sessionId);
+    this.logger.log(`Player ${playerId} defended in session ${sessionId}`);
     this.eventBus.publish(new AttackDefendedEvent(sessionId));
   }
 

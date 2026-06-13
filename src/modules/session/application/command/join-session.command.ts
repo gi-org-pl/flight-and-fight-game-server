@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionRepository } from '../../infra/database/repository/session.repository';
 import { PlayerRepository } from '../../infra/database/repository/player.repository';
@@ -17,6 +18,8 @@ export class JoinSessionCommand {
 
 @CommandHandler(JoinSessionCommand)
 export class JoinSessionHandler implements ICommandHandler<JoinSessionCommand> {
+  private readonly logger = new Logger(JoinSessionHandler.name);
+
   constructor(
     private readonly sessions: SessionRepository,
     private readonly players: PlayerRepository,
@@ -40,5 +43,7 @@ export class JoinSessionHandler implements ICommandHandler<JoinSessionCommand> {
       secondPlayerId,
       session.firstPlayerId,
     );
+
+    this.logger.log(`Player ${secondPlayerId} joined session ${sessionId}`);
   }
 }
