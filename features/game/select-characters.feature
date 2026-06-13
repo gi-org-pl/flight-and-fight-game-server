@@ -14,6 +14,10 @@ Feature: As a player I choose my characters over the websocket
       """
       { "characters": ["IRIS", "ZEPHYR", "WENDY", "SKYE", "SUNNY"] }
       """
+    And player "01HRESEED0000000000000P302" emits "selectCharacters" with:
+      """
+      { "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"] }
+      """
     Then player "01HRESEED0000000000000P301" receives "ready" with:
       """
       {
