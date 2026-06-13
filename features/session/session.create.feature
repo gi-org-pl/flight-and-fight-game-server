@@ -4,7 +4,7 @@ Feature: As a player I can create a game session
     Given I use seed data
 
   Scenario: I create a new session and become its first player
-    When I send a "POST" request to "/sessions" with body:
+    When I send a "POST" request to "/api/v1/sessions" with body:
       """
       {
         "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
@@ -20,7 +20,7 @@ Feature: As a player I can create a game session
       """
 
   Scenario: I cannot create a session with fewer than 5 characters
-    When I send a "POST" request to "/sessions" with body:
+    When I send a "POST" request to "/api/v1/sessions" with body:
       """
       {
         "characters": ["IRIS", "SKYE", "SUNNY", "THORA"]
@@ -40,7 +40,7 @@ Feature: As a player I can create a game session
       """
 
   Scenario: I cannot create a session with duplicate characters
-    When I send a "POST" request to "/sessions" with body:
+    When I send a "POST" request to "/api/v1/sessions" with body:
       """
       {
         "characters": ["IRIS", "IRIS", "SUNNY", "THORA", "VEGA"]
@@ -60,7 +60,7 @@ Feature: As a player I can create a game session
       """
 
   Scenario: I cannot create a session with an unknown character
-    When I send a "POST" request to "/sessions" with body:
+    When I send a "POST" request to "/api/v1/sessions" with body:
       """
       {
         "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "UNICORN"]

@@ -14,8 +14,8 @@ import { UnauthorizedResponse } from '../../../../core/infra/http/response/unaut
 import { PlayerGuard } from '../../../../core/infra/auth/player.guard';
 import { CurrentPlayerId } from '../../../../core/infra/auth/current-player.decorator';
 
-@ApiTags('characters')
-@Controller('my-characters')
+@ApiTags('user stats')
+@Controller('api/v1/my-characters')
 export class GetMyCharactersController {
   constructor(private readonly queryBus: QueryBus) {}
 

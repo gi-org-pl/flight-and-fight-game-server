@@ -6,7 +6,7 @@ import { Character } from '../../model/character/character.model';
 import { CharacterResponse } from './dto/character.response';
 
 @ApiTags('characters')
-@Controller('characters')
+@Controller('api/v1/characters')
 export class GetCharactersController {
   constructor(private readonly queryBus: QueryBus) {}
 

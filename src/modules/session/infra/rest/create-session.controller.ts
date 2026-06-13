@@ -7,7 +7,7 @@ import { SelectCharactersRequest } from './dto/select-characters.request';
 import { SessionCredentialsResponse } from './dto/session-credentials.response';
 
 @ApiTags('sessions')
-@Controller('sessions')
+@Controller('api/v1/sessions')
 export class CreateSessionController {
   constructor(private readonly commandBus: CommandBus) {}
 

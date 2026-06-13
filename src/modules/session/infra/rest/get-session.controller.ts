@@ -13,7 +13,7 @@ import { GenericNotFoundResponse } from '../../../../core/infra/http/response/no
 import { UlidParam } from '../../../../core/infra/http/validation/decorator/ulid-param.decorator';
 
 @ApiTags('sessions')
-@Controller('sessions')
+@Controller('api/v1/sessions')
 export class GetSessionController {
   constructor(private readonly queryBus: QueryBus) {}
 

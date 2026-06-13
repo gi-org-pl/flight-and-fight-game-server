@@ -1,7 +1,7 @@
 Feature: As a player I can see all available characters
 
   Scenario: I list all available characters
-    When I send a "GET" request to "/characters"
+    When I send a "GET" request to "/api/v1/characters"
     Then the response status should be 200
     And the response body should contain:
       """
