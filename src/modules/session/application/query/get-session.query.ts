@@ -1,7 +1,7 @@
-import { NotFoundException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Session } from '../../infra/database/session.entity';
 import { SessionRepository } from '../../infra/database/session.repository';
+import { SessionNotFoundError } from '../../model/error/session.error';
 
 export class GetSessionQuery {
   constructor(public readonly sessionId: string) {}
@@ -18,7 +18,7 @@ export class GetSessionHandler implements IQueryHandler<
     const session = await this.sessions.findById(sessionId);
 
     if (!session) {
-      throw new NotFoundException('Session with given id does not exist.');
+      throw new SessionNotFoundError();
     }
 
     return session;

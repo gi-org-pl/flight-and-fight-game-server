@@ -1,6 +1,9 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionRepository } from '../../infra/database/session.repository';
+import {
+  SessionNotFoundError,
+  SessionNotOpenError,
+} from '../../model/error/session.error';
 
 export class JoinSessionCommand {
   constructor(
@@ -18,11 +21,11 @@ export class JoinSessionHandler implements ICommandHandler<JoinSessionCommand> {
 
     const session = await this.sessions.findById(sessionId);
     if (!session) {
-      throw new NotFoundException('Session with given id does not exist.');
+      throw new SessionNotFoundError();
     }
 
     if (session.secondPlayerId !== null) {
-      throw new ConflictException('Session is not open for joining.');
+      throw new SessionNotOpenError();
     }
 
     await this.sessions.claimSecondSlot(sessionId, secondPlayerId);
