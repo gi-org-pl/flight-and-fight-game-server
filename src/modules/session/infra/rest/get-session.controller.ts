@@ -7,10 +7,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { GetSessionQuery } from '../../application/query/get-session.query';
-import { Session } from '../database/session.entity';
+import { Session } from '../database/entity/session.entity';
 import { GetSessionResponse } from './dto/get-session.response';
-import { GenericNotFoundResponse } from '../../../../core/http/response/not-found.response';
-import { UlidParam } from '../../../../core/validation/decorator/ulid-param.decorator';
+import { GenericNotFoundResponse } from '../../../../core/infra/http/response/not-found.response';
+import { UlidParam } from '../../../../core/infra/http/validation/decorator/ulid-param.decorator';
 
 @ApiTags('sessions')
 @Controller('sessions')

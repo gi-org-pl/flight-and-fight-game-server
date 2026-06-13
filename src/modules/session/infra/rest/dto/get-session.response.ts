@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SessionState } from '../../database/session.entity';
+import { SessionState } from '../../database/entity/session.entity';
 
 export class GetSessionResponse {
   @ApiProperty({

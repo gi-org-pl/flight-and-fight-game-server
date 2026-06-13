@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Session } from '../../infra/database/session.entity';
-import { SessionRepository } from '../../infra/database/session.repository';
+import { Session } from '../../infra/database/entity/session.entity';
+import { SessionRepository } from '../../infra/database/repository/session.repository';
 import { SessionNotFoundError } from '../../model/error/session.error';
 
 export class GetSessionQuery {

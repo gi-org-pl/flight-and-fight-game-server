@@ -1,5 +1,5 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as pack from '../../../../package.json';
+import * as pack from '../../../../../package.json';
 import { INestApplication } from '@nestjs/common';
 
 function createSwaggerConfig() {
@@ -14,9 +14,8 @@ function createSwaggerConfig() {
       {
         type: 'http',
         scheme: 'bearer',
-        bearerFormat: 'JWT',
         description:
-          'Enter your JWT token in the format: **Bearer &lt;token&gt;**',
+          'Enter your player id in the format: **Bearer &lt;playerId&gt;**',
       },
       'access-token',
     )

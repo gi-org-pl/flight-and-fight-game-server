@@ -8,6 +8,13 @@ const apiBaseUrl = 'http://localhost:3000';
 let apiToken: string | null = null;
 let apiResponse: AxiosResponse;
 
+function buildHeaders(): Record<string, string> {
+  if (apiToken === '' || apiToken === null) {
+    return {};
+  }
+  return { Authorization: `Bearer ${apiToken}` };
+}
+
 BeforeAll({ timeout: 60 * 1000 }, async () => {
   const deadline = Date.now() + 45 * 1000;
 
@@ -28,12 +35,8 @@ Given('I use seed data', () => {
   execSync('npm run database:seed > /dev/null');
 });
 
-Given('I use admin token', async () => {
-  apiToken = 'admin-token';
-});
-
-Given('I use destructive actions token', async () => {
-  apiToken = 'destructive-actions-token';
+Given('I identify as player {string}', (playerId: string) => {
+  apiToken = playerId;
 });
 
 When(
@@ -44,7 +47,7 @@ When(
       method: method,
       url: url,
       validateStatus: () => true,
-      headers: apiToken === '' ? {} : { Authorization: `Bearer ${apiToken}` },
+      headers: buildHeaders(),
     });
   },
 );
@@ -58,7 +61,7 @@ When(
       url: url,
       data: JSON.parse(body),
       validateStatus: () => true,
-      headers: apiToken === '' ? {} : { Authorization: `Bearer ${apiToken}` },
+      headers: buildHeaders(),
     });
   },
 );
