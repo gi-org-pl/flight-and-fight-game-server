@@ -15,14 +15,19 @@ const seedCharacters = [
 ];
 
 export const seedSessions = {
-  open: {
+  waitingForSecondPlayer: {
     id: '01HRESEED000000000000000S1',
     firstPlayerId: '01HRESEED0000000000000P101',
   },
-  closed: {
+  ready: {
     id: '01HRESEED000000000000000S2',
     firstPlayerId: '01HRESEED0000000000000P201',
     secondPlayerId: '01HRESEED0000000000000P202',
+  },
+  waitingForCharacterChoice: {
+    id: '01HRESEED000000000000000S3',
+    firstPlayerId: '01HRESEED0000000000000P301',
+    secondPlayerId: '01HRESEED0000000000000P302',
   },
 };
 
@@ -32,32 +37,48 @@ async function seed(): Promise<void> {
   await dataSource.runMigrations();
 
   const players = dataSource.getRepository(Player);
-  await players.save(
-    [
-      seedSessions.open.firstPlayerId,
-      seedSessions.closed.firstPlayerId,
-      seedSessions.closed.secondPlayerId,
-    ].map((id) => ({
-      id,
+  await players.save([
+    {
+      id: seedSessions.waitingForSecondPlayer.firstPlayerId,
+    },
+    {
+      id: seedSessions.ready.firstPlayerId,
       characters: seedCharacters.map((characterType) => ({ characterType })),
-    })),
-  );
+    },
+    {
+      id: seedSessions.ready.secondPlayerId,
+      characters: seedCharacters.map((characterType) => ({ characterType })),
+    },
+    {
+      id: seedSessions.waitingForCharacterChoice.firstPlayerId,
+    },
+    {
+      id: seedSessions.waitingForCharacterChoice.secondPlayerId,
+    },
+  ]);
 
   const sessions = dataSource.getRepository(Session);
   await sessions.insert([
     {
-      id: seedSessions.open.id,
-      state: SessionState.OPEN,
-      firstPlayerId: seedSessions.open.firstPlayerId,
+      id: seedSessions.waitingForSecondPlayer.id,
+      state: SessionState.WAITING_FOR_SECOND_PLAYER,
+      firstPlayerId: seedSessions.waitingForSecondPlayer.firstPlayerId,
       secondPlayerId: null,
       currentlyAttackingPlayerId: null,
     },
     {
-      id: seedSessions.closed.id,
-      state: SessionState.CLOSED,
-      firstPlayerId: seedSessions.closed.firstPlayerId,
-      secondPlayerId: seedSessions.closed.secondPlayerId,
-      currentlyAttackingPlayerId: seedSessions.closed.firstPlayerId,
+      id: seedSessions.ready.id,
+      state: SessionState.READY,
+      firstPlayerId: seedSessions.ready.firstPlayerId,
+      secondPlayerId: seedSessions.ready.secondPlayerId,
+      currentlyAttackingPlayerId: seedSessions.ready.firstPlayerId,
+    },
+    {
+      id: seedSessions.waitingForCharacterChoice.id,
+      state: SessionState.WAITING_FOR_CHARACTER_CHOICE,
+      firstPlayerId: seedSessions.waitingForCharacterChoice.firstPlayerId,
+      secondPlayerId: seedSessions.waitingForCharacterChoice.secondPlayerId,
+      currentlyAttackingPlayerId: null,
     },
   ]);
 

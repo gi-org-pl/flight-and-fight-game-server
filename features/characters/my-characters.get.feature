@@ -4,7 +4,7 @@ Feature: As a player I can see my selected characters
     Given I use seed data
 
   Scenario: I see my characters with their stats
-    Given I identify as player "01HRESEED0000000000000P101"
+    Given I identify as player "01HRESEED0000000000000P201"
     When I send a "GET" request to "/api/v1/my-characters"
     Then the response status should be 200
     And the response body should contain:

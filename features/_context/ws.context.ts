@@ -57,6 +57,13 @@ When('player {string} emits {string}', (playerId: string, event: string) => {
   sockets.get(playerId)?.emit(event);
 });
 
+When(
+  'player {string} emits {string} with:',
+  (playerId: string, event: string, docString: string) => {
+    sockets.get(playerId)?.emit(event, JSON.parse(docString));
+  },
+);
+
 Then(
   'player {string} receives {string}',
   async (playerId: string, event: string) => {
