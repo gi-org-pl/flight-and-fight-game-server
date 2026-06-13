@@ -1,6 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PlayerRepository } from '../../infra/database/repository/player.repository';
-import { getCharacter } from '../../model/character/character.catalog';
 import { Character } from '../../model/character/character.model';
 import { PlayerNotFoundError } from '../../model/error/session.error';
 
@@ -23,7 +22,16 @@ export class GetMyCharactersHandler implements IQueryHandler<
     }
 
     return player.characters
-      .map((character) => getCharacter(character.characterType))
+      .map((character) => ({
+        type: character.characterType,
+        superpower: character.superpower,
+        stats: {
+          intelligence: character.intelligence,
+          defense: character.defense,
+          power: character.power,
+          health: character.health,
+        },
+      }))
       .sort((a, b) => a.type.localeCompare(b.type));
   }
 }

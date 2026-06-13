@@ -5,6 +5,7 @@ import {
 } from '../../src/modules/session/infra/database/entity/session.entity';
 import { Player } from '../../src/modules/session/infra/database/entity/player.entity';
 import { CharacterType } from '../../src/modules/session/model/character/character.model';
+import { getCharacter } from '../../src/modules/session/model/character/character.catalog';
 
 const seedCharacters = [
   CharacterType.IRIS,
@@ -13,6 +14,19 @@ const seedCharacters = [
   CharacterType.THORA,
   CharacterType.VEGA,
 ];
+
+const seedCharacterRows = seedCharacters.map((type) => {
+  const character = getCharacter(type);
+
+  return {
+    characterType: character.type,
+    superpower: character.superpower,
+    intelligence: character.stats.intelligence,
+    defense: character.stats.defense,
+    power: character.stats.power,
+    health: character.stats.health,
+  };
+});
 
 export const seedSessions = {
   waitingForSecondPlayer: {
@@ -43,11 +57,11 @@ async function seed(): Promise<void> {
     },
     {
       id: seedSessions.ready.firstPlayerId,
-      characters: seedCharacters.map((characterType) => ({ characterType })),
+      characters: seedCharacterRows.map((row) => ({ ...row })),
     },
     {
       id: seedSessions.ready.secondPlayerId,
-      characters: seedCharacters.map((characterType) => ({ characterType })),
+      characters: seedCharacterRows.map((row) => ({ ...row })),
     },
     {
       id: seedSessions.waitingForCharacterChoice.firstPlayerId,
