@@ -30,7 +30,7 @@ Feature: As a player I attack and defend in real time
       """
       {
         "id": "01HRESEED000000000000000S2",
-        "state": "CLOSED",
+        "state": "READY",
         "firstPlayerId": "01HRESEED0000000000000P201",
         "secondPlayerId": "01HRESEED0000000000000P202",
         "currentlyAttackingPlayerId": "01HRESEED0000000000000P202",
@@ -42,7 +42,7 @@ Feature: As a player I attack and defend in real time
       """
       {
         "id": "01HRESEED000000000000000S2",
-        "state": "CLOSED",
+        "state": "READY",
         "firstPlayerId": "01HRESEED0000000000000P201",
         "secondPlayerId": "01HRESEED0000000000000P202",
         "currentlyAttackingPlayerId": "01HRESEED0000000000000P202",
@@ -56,7 +56,7 @@ Feature: As a player I attack and defend in real time
       """
       {
         "id": "01HRESEED000000000000000S2",
-        "state": "CLOSED",
+        "state": "READY",
         "firstPlayerId": "01HRESEED0000000000000P201",
         "secondPlayerId": "01HRESEED0000000000000P202",
         "currentlyAttackingPlayerId": "01HRESEED0000000000000P202",

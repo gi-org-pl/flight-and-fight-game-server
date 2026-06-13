@@ -20,6 +20,7 @@ import { GetSessionByJoinCodeHandler } from './application/query/get-session-by-
 import { GetMyCharactersHandler } from './application/query/get-my-characters.query';
 import { GetCharactersHandler } from './application/query/get-characters.query';
 import { AttackDefendedHandler } from './application/event/attack-defended.handler';
+import { CharactersSelectedHandler } from './application/event/characters-selected.handler';
 
 const CommandHandlers = [
   CreateSessionHandler,
@@ -32,7 +33,7 @@ const QueryHandlers = [
   GetMyCharactersHandler,
   GetCharactersHandler,
 ];
-const EventHandlers = [AttackDefendedHandler];
+const EventHandlers = [AttackDefendedHandler, CharactersSelectedHandler];
 
 @Module({
   imports: [

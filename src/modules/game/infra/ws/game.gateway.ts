@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { EventBus, QueryBus } from '@nestjs/cqrs';
 import {
   ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayInit,
   SubscribeMessage,
@@ -12,15 +13,28 @@ import { Server, Socket } from 'socket.io';
 import { isValid as isValidUlid } from 'ulidx';
 import { GetSessionQuery } from '../../../session/application/query/get-session.query';
 import { GetMyCharactersQuery } from '../../../session/application/query/get-my-characters.query';
-import { Session } from '../../../session/infra/database/entity/session.entity';
-import { Character } from '../../../session/model/character/character.model';
+import {
+  Session,
+  SessionState,
+} from '../../../session/infra/database/entity/session.entity';
+import {
+  Character,
+  CharacterType,
+} from '../../../session/model/character/character.model';
 import { AttackDefendedEvent } from '../../model/event/attack-defended.event';
+import { CharactersSelectedEvent } from '../../model/event/characters-selected.event';
 import {
   AttackAlreadyPendingError,
+  CharactersLockedError,
+  InvalidCharacterSelectionError,
   NoAttackToDefendError,
   NotDefendingPlayerError,
   NotYourTurnError,
 } from '../../model/error/game.error';
+
+interface SelectCharactersMessage {
+  characters?: unknown;
+}
 
 interface GameSocket extends Socket {
   data: { playerId: string; sessionId: string };
@@ -95,10 +109,51 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     this.eventBus.publish(new AttackDefendedEvent(sessionId));
   }
 
+  @SubscribeMessage('selectCharacters')
+  async onSelectCharacters(
+    @ConnectedSocket() client: GameSocket,
+    @MessageBody() body: SelectCharactersMessage,
+  ): Promise<void> {
+    const { playerId, sessionId } = client.data;
+    const session = await this.getSession(sessionId);
+
+    if (session.state === SessionState.READY) {
+      throw new CharactersLockedError();
+    }
+
+    const characters = this.parseSelection(body);
+    this.logger.log(
+      `Player ${playerId} selected characters in session ${sessionId}`,
+    );
+    this.eventBus.publish(
+      new CharactersSelectedEvent(sessionId, playerId, characters),
+    );
+  }
+
   async broadcastTurnChanged(sessionId: string): Promise<void> {
     this.server
       .to(sessionId)
       .emit('turnChanged', await this.getSession(sessionId));
+  }
+
+  async broadcastReady(sessionId: string): Promise<void> {
+    this.server.to(sessionId).emit('ready', await this.getSession(sessionId));
+  }
+
+  private parseSelection(body: SelectCharactersMessage): CharacterType[] {
+    const characters = body?.characters;
+    const known = Object.values(CharacterType) as string[];
+
+    if (
+      !Array.isArray(characters) ||
+      characters.length !== 5 ||
+      new Set(characters).size !== 5 ||
+      !characters.every((character) => known.includes(character as string))
+    ) {
+      throw new InvalidCharacterSelectionError();
+    }
+
+    return characters as CharacterType[];
   }
 
   private opponentOf(session: Session, playerId: string): string {

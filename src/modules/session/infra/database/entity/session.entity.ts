@@ -7,8 +7,9 @@ import {
 } from 'typeorm';
 
 export enum SessionState {
-  OPEN = 'OPEN',
-  CLOSED = 'CLOSED',
+  WAITING_FOR_SECOND_PLAYER = 'WAITING_FOR_SECOND_PLAYER',
+  WAITING_FOR_CHARACTER_CHOICE = 'WAITING_FOR_CHARACTER_CHOICE',
+  READY = 'READY',
 }
 
 @Entity('session')
@@ -16,7 +17,11 @@ export class Session {
   @PrimaryColumn('varchar')
   id: string;
 
-  @Column({ type: 'enum', enum: SessionState, default: SessionState.OPEN })
+  @Column({
+    type: 'enum',
+    enum: SessionState,
+    default: SessionState.WAITING_FOR_SECOND_PLAYER,
+  })
   state: SessionState;
 
   @Column('varchar')

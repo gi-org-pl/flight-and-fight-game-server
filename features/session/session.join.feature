@@ -4,12 +4,7 @@ Feature: As a player I can join a game session
     Given I use seed data
 
   Scenario: I join an open session using its join code
-    When I send a "POST" request to "/api/v1/sessions/000000S1/join" with body:
-      """
-      {
-        "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
-      }
-      """
+    When I send a "POST" request to "/api/v1/sessions/000000S1/join"
     Then the response status should be 201
     And the response body should contain:
       """
@@ -19,13 +14,8 @@ Feature: As a player I can join a game session
       }
       """
 
-  Scenario: Joining a session makes the initiator attack first
-    When I send a "POST" request to "/api/v1/sessions/000000S1/join" with body:
-      """
-      {
-        "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
-      }
-      """
+  Scenario: Joining a session moves it to character choice without an attacker
+    When I send a "POST" request to "/api/v1/sessions/000000S1/join"
     Then the response status should be 201
     When I send a "GET" request to "/api/v1/sessions/01HRESEED000000000000000S1"
     Then the response status should be 200
@@ -33,22 +23,17 @@ Feature: As a player I can join a game session
       """
       {
         "id": "01HRESEED000000000000000S1",
-        "state": "CLOSED",
+        "state": "WAITING_FOR_CHARACTER_CHOICE",
         "firstPlayerId": "01HRESEED0000000000000P101",
         "secondPlayerId": "@ulid",
-        "currentlyAttackingPlayerId": "01HRESEED0000000000000P101",
+        "currentlyAttackingPlayerId": null,
         "createdAt": "@date('within 1 minute from now')",
         "updatedAt": "@date('within 1 minute from now')"
       }
       """
 
   Scenario: I cannot join a session that is already full
-    When I send a "POST" request to "/api/v1/sessions/000000S2/join" with body:
-      """
-      {
-        "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
-      }
-      """
+    When I send a "POST" request to "/api/v1/sessions/000000S2/join"
     Then the response status should be 409
     And the response body should contain:
       """
@@ -60,12 +45,7 @@ Feature: As a player I can join a game session
       """
 
   Scenario: I cannot join with a join code that matches no session
-    When I send a "POST" request to "/api/v1/sessions/ZZZZZZZZ/join" with body:
-      """
-      {
-        "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
-      }
-      """
+    When I send a "POST" request to "/api/v1/sessions/ZZZZZZZZ/join"
     Then the response status should be 404
     And the response body should contain:
       """
@@ -77,12 +57,7 @@ Feature: As a player I can join a game session
       """
 
   Scenario: I cannot join with a malformed join code
-    When I send a "POST" request to "/api/v1/sessions/not-a-ulid/join" with body:
-      """
-      {
-        "characters": ["IRIS", "SKYE", "SUNNY", "THORA", "VEGA"]
-      }
-      """
+    When I send a "POST" request to "/api/v1/sessions/not-a-ulid/join"
     Then the response status should be 400
     And the response body should contain:
       """
@@ -90,25 +65,5 @@ Feature: As a player I can join a game session
         "message": "Validation failed (join code is expected)",
         "error": "Bad Request",
         "statusCode": 400
-      }
-      """
-
-  Scenario: I cannot join with fewer than 5 characters
-    When I send a "POST" request to "/api/v1/sessions/000000S1/join" with body:
-      """
-      {
-        "characters": ["IRIS", "SKYE", "SUNNY", "THORA"]
-      }
-      """
-    Then the response status should be 400
-    And the response body should contain:
-      """
-      {
-        "statusCode": 400,
-        "message": "Request validation failed.",
-        "error": "Bad Request",
-        "violations": {
-          "characters": ["characters must contain at least 5 elements"]
-        }
       }
       """

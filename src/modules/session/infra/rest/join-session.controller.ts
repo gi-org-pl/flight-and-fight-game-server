@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiConflictResponse,
@@ -11,7 +11,6 @@ import { ulid } from 'ulidx';
 import { JoinSessionCommand } from '../../application/command/join-session.command';
 import { GetSessionByJoinCodeQuery } from '../../application/query/get-session-by-join-code.query';
 import { Session } from '../database/entity/session.entity';
-import { SelectCharactersRequest } from './dto/select-characters.request';
 import { SessionCredentialsResponse } from './dto/session-credentials.response';
 import { GenericNotFoundResponse } from '../../../../core/infra/http/response/not-found.response';
 import { JoinCodeParam } from '../../../../core/infra/http/validation/decorator/join-code-param.decorator';
@@ -34,7 +33,6 @@ export class JoinSessionController {
   @ApiConflictResponse()
   async join(
     @JoinCodeParam('code') code: string,
-    @Body() body: SelectCharactersRequest,
   ): Promise<SessionCredentialsResponse> {
     const session = await this.queryBus.execute<
       GetSessionByJoinCodeQuery,
@@ -42,9 +40,7 @@ export class JoinSessionController {
     >(new GetSessionByJoinCodeQuery(code));
 
     const playerId = ulid();
-    await this.commandBus.execute(
-      new JoinSessionCommand(session.id, playerId, body.characters),
-    );
+    await this.commandBus.execute(new JoinSessionCommand(session.id, playerId));
 
     return { sessionId: session.id, playerId };
   }

@@ -2,11 +2,12 @@ asyncapi: 3.0.0
 
 info:
   title: Flight and Fight game WebSocket API
-  version: 0.6.0
+  version: 0.8.0
   description: >
     Real-time game channel (socket.io). Two players connect to the same
-    session, take turns attacking and defending, and the turn alternates after
-    each completed exchange.
+    session, each submit their characters, and once both have chosen the game
+    becomes READY. They then take turns attacking and defending, and the turn
+    alternates after each completed exchange.
 
 
     Authentication is performed during the socket.io handshake: pass
@@ -27,12 +28,16 @@ channels:
     title: Game channel
     description: Per-session channel; each player joins a room named by the session id.
     messages:
+      selectCharacters:
+        $ref: '#/components/messages/selectCharacters'
       attack:
         $ref: '#/components/messages/attack'
       defend:
         $ref: '#/components/messages/defend'
       session:
         $ref: '#/components/messages/session'
+      ready:
+        $ref: '#/components/messages/ready'
       attacked:
         $ref: '#/components/messages/attacked'
       charactersUpdated:
@@ -43,6 +48,19 @@ channels:
         $ref: '#/components/messages/exception'
 
 operations:
+  selectCharacters:
+    action: receive
+    channel:
+      $ref: '#/channels/game'
+    summary: A player submits their 5 characters.
+    description: >
+      Sent by each player after connecting. Rejected with an `exception` if the
+      selection is not exactly 5 unique known characters, or if the game is
+      already READY. A player may re-submit to change their picks until the game
+      is READY. Once both players have submitted, the game becomes READY and a
+      `ready` message is broadcast to the room.
+    messages:
+      - $ref: '#/channels/game/messages/selectCharacters'
   attack:
     action: receive
     channel:
@@ -72,6 +90,16 @@ operations:
     summary: Current session state, sent to a player right after they connect.
     messages:
       - $ref: '#/channels/game/messages/session'
+  ready:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    summary: Broadcast to the room once both players have chosen their characters.
+    description: >
+      Carries the updated session (`state` is READY and
+      `currentlyAttackingPlayerId` is the first player, who attacks first).
+    messages:
+      - $ref: '#/channels/game/messages/ready'
   attacked:
     action: send
     channel:
@@ -103,6 +131,12 @@ operations:
 
 components:
   messages:
+    selectCharacters:
+      name: selectCharacters
+      title: Select characters
+      summary: Submit the 5 characters for the sending player.
+      payload:
+        $ref: '#/components/schemas/SelectCharacters'
     attack:
       name: attack
       title: Attack
@@ -118,6 +152,11 @@ components:
     session:
       name: session
       title: Session state
+      payload:
+        $ref: '#/components/schemas/Session'
+    ready:
+      name: ready
+      title: Game ready
       payload:
         $ref: '#/components/schemas/Session'
     attacked:
@@ -153,8 +192,9 @@ components:
     SessionState:
       type: string
       enum:
-        - OPEN
-        - CLOSED
+        - WAITING_FOR_SECOND_PLAYER
+        - WAITING_FOR_CHARACTER_CHOICE
+        - READY
 
     Session:
       type: object
@@ -224,6 +264,17 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Character'
+
+    SelectCharacters:
+      type: object
+      properties:
+        characters:
+          type: array
+          minItems: 5
+          maxItems: 5
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/CharacterType'
 
     Exception:
       type: object
