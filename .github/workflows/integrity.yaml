@@ -35,28 +35,3 @@ jobs:
         run: docker compose exec app npm run lint
       - name: Run end-to-end tests
         run: docker compose exec app npm run test:functional
-  deploy:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Run image in production
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script_stop: true
-          envs: DATABASE_URL
-          script: |
-            docker rm -f faf-app || true
-            docker run -d \
-              --name faf-app \
-              --network faf-net \
-              --restart unless-stopped \
-              --pull always \
-              -e NODE_ENV=production \
-              -e DATABASE_URL="$DATABASE_URL" \
-              -p 80:3000 \
-              ghcr.io/gi-org-pl/flight-and-fight-game-server:latest
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
