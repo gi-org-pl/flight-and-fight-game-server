@@ -18,10 +18,22 @@ Feature: As a player I attack and defend in real time
     And player "01HRESEED0000000000000P202" receives "charactersUpdated" with:
       """
       [
-        { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 } },
+        {
+          "type": "IRIS",
+          "superpower": "LIGHT",
+          "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }
+        },
         { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 } },
-        { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 } },
-        { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 } },
+        {
+          "type": "SUNNY",
+          "superpower": "FIRE",
+          "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }
+        },
+        {
+          "type": "THORA",
+          "superpower": "ELECTRIC",
+          "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }
+        },
         { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 } }
       ]
       """
