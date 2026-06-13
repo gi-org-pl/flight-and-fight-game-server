@@ -1,6 +1,9 @@
 import 'reflect-metadata';
+import { join } from 'path';
 import { DataSource } from 'typeorm';
 import { entities } from './entities';
+
+const migrationsGlob = __filename.endsWith('.js') ? '*.js' : '*.ts';
 
 export const dataSourceOptions = {
   type: 'postgres' as const,
@@ -11,6 +14,6 @@ export const dataSourceOptions = {
 
 export default new DataSource({
   ...dataSourceOptions,
-  migrations: ['src/core/database/migration/*.ts'],
+  migrations: [join(__dirname, 'migration', migrationsGlob)],
   migrationsTableName: 'migrations',
 });

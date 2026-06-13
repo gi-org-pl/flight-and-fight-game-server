@@ -1,6 +1,6 @@
 {
   "name": "flight-and-fight-game-server",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "author": "gi-org-pl",
   "private": true,
@@ -21,6 +21,7 @@
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:run": "npm run typeorm -- migration:run",
+    "migration:run:prod": "typeorm -d dist/src/core/database/data-source.js migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
     "database:drop": "npm run typeorm -- schema:drop",
     "database:reset": "npm run database:drop && npm run migration:run",
