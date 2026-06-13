@@ -10,11 +10,11 @@ Feature: As a player I can see my selected characters
     And the response body should contain:
       """
       [
-        { "type": "IRIS", "stats": { "intelligence": 4, "defense": 3, "power": 3, "health": 5, "refresh": 6 } },
-        { "type": "SKYE", "stats": { "intelligence": 5, "defense": 5, "power": 6, "health": 6, "refresh": 6 } },
-        { "type": "SUNNY", "stats": { "intelligence": 6, "defense": 4, "power": 7, "health": 5, "refresh": 7 } },
-        { "type": "THORA", "stats": { "intelligence": 9, "defense": 6, "power": 8, "health": 8, "refresh": 9 } },
-        { "type": "VEGA", "stats": { "intelligence": 8, "defense": 9, "power": 10, "health": 10, "refresh": 5 } }
+        { "type": "IRIS", "stats": { "health": 6, "power": 4, "defense": 4, "intelligence": 9 } },
+        { "type": "SKYE", "stats": { "health": 7, "power": 7, "defense": 4, "intelligence": 4 } },
+        { "type": "SUNNY", "stats": { "health": 6, "power": 8, "defense": 4, "intelligence": 3 } },
+        { "type": "THORA", "stats": { "health": 6, "power": 8, "defense": 3, "intelligence": 5 } },
+        { "type": "VEGA", "stats": { "health": 8, "power": 6, "defense": 3, "intelligence": 8 } }
       ]
       """
 
