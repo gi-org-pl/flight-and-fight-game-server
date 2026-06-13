@@ -13,28 +13,46 @@ export class SessionRepository {
   createOpen(id: string, firstPlayerId: string): Promise<Session> {
     const entity = this.sessions.create({
       id,
-      state: SessionState.OPEN,
+      state: SessionState.WAITING_FOR_SECOND_PLAYER,
       firstPlayerId,
     });
 
     return this.sessions.save(entity);
   }
 
-  async claimSecondSlot(
-    id: string,
-    secondPlayerId: string,
-    attackingPlayerId: string,
-  ): Promise<boolean> {
+  async claimSecondSlot(id: string, secondPlayerId: string): Promise<boolean> {
     const result = await this.sessions.update(
-      { id, state: SessionState.OPEN, secondPlayerId: IsNull() },
+      {
+        id,
+        state: SessionState.WAITING_FOR_SECOND_PLAYER,
+        secondPlayerId: IsNull(),
+      },
       {
         secondPlayerId,
-        state: SessionState.CLOSED,
+        state: SessionState.WAITING_FOR_CHARACTER_CHOICE,
+      },
+    );
+
+    return !!result.affected;
+  }
+
+  async markReady(id: string, attackingPlayerId: string): Promise<boolean> {
+    const result = await this.sessions.update(
+      { id, state: SessionState.WAITING_FOR_CHARACTER_CHOICE },
+      {
+        state: SessionState.READY,
         currentlyAttackingPlayerId: attackingPlayerId,
       },
     );
 
     return !!result.affected;
+  }
+
+  async setCurrentlyAttacking(id: string, playerId: string): Promise<void> {
+    await this.sessions.update(
+      { id },
+      { currentlyAttackingPlayerId: playerId },
+    );
   }
 
   findById(id: string): Promise<Session | null> {
