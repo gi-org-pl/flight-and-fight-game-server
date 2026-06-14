@@ -10,11 +10,36 @@ Feature: As a player I can see my selected characters
     And the response body should contain:
       """
       [
-        { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }, "isDead": false },
-        { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 }, "isDead": false },
-        { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }, "isDead": false },
-        { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }, "isDead": false },
-        { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 }, "isDead": false }
+        {
+          "type": "IRIS",
+          "superpower": "LIGHT",
+          "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 },
+          "isDead": false
+        },
+        {
+          "type": "SKYE",
+          "superpower": "AIR",
+          "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 },
+          "isDead": false
+        },
+        {
+          "type": "SUNNY",
+          "superpower": "FIRE",
+          "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 },
+          "isDead": false
+        },
+        {
+          "type": "THORA",
+          "superpower": "ELECTRIC",
+          "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 },
+          "isDead": false
+        },
+        {
+          "type": "VEGA",
+          "superpower": "GRASS",
+          "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 },
+          "isDead": false
+        }
       ]
       """
 
