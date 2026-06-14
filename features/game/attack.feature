@@ -6,7 +6,10 @@ Feature: As a player I attack and defend in real time
   Scenario: The attacker attacks, the defender defends, and the turn flips
     Given player "01HRESEED0000000000000P201" connects to the session channel for "01HRESEED000000000000000S2"
     And player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
-    When player "01HRESEED0000000000000P201" emits "attack"
+    When player "01HRESEED0000000000000P201" emits "attack" with:
+      """
+      { "quickTimeEventMultiplier": 2.00, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+      """
     Then player "01HRESEED0000000000000P201" receives "attacked" with:
       """
       { "attackingPlayerId": "01HRESEED0000000000000P201" }
@@ -37,7 +40,10 @@ Feature: As a player I attack and defend in real time
         { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 } }
       ]
       """
-    When player "01HRESEED0000000000000P202" emits "defend"
+    When player "01HRESEED0000000000000P202" emits "defend" with:
+      """
+      { "quickTimeEventMultiplier": 1.00 }
+      """
     Then player "01HRESEED0000000000000P201" receives "turnChanged" with:
       """
       {
@@ -77,27 +83,137 @@ Feature: As a player I attack and defend in real time
       }
       """
 
+  Scenario: The attacker overpowers the defender and the targeted character loses health
+    Given player "01HRESEED0000000000000P201" connects to the session channel for "01HRESEED000000000000000S2"
+    And player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
+    When player "01HRESEED0000000000000P201" emits "attack" with:
+      """
+      { "quickTimeEventMultiplier": 2.00, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+      """
+    Then player "01HRESEED0000000000000P201" receives "attacked"
+    When player "01HRESEED0000000000000P202" emits "defend" with:
+      """
+      { "quickTimeEventMultiplier": 1.00 }
+      """
+    Then player "01HRESEED0000000000000P202" receives "turnChanged"
+    And I identify as player "01HRESEED0000000000000P202"
+    When I send a "GET" request to "/api/v1/my-characters"
+    Then the response status should be 200
+    And the response body should contain:
+      """
+      [
+        { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 } },
+        { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 } },
+        { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 } },
+        { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 } },
+        { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 5 } }
+      ]
+      """
+
+  Scenario: The defender overpowers the attacker and the attacking character loses health
+    Given player "01HRESEED0000000000000P201" connects to the session channel for "01HRESEED000000000000000S2"
+    And player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
+    When player "01HRESEED0000000000000P201" emits "attack" with:
+      """
+      { "quickTimeEventMultiplier": 1.00, "attackingCharacter": "VEGA", "attackedCharacter": "SUNNY" }
+      """
+    Then player "01HRESEED0000000000000P201" receives "attacked"
+    When player "01HRESEED0000000000000P202" emits "defend" with:
+      """
+      { "quickTimeEventMultiplier": 2.00 }
+      """
+    Then player "01HRESEED0000000000000P201" receives "turnChanged"
+    And I identify as player "01HRESEED0000000000000P201"
+    When I send a "GET" request to "/api/v1/my-characters"
+    Then the response status should be 200
+    And the response body should contain:
+      """
+      [
+        { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 } },
+        { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 } },
+        { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 } },
+        { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 } },
+        { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 5 } }
+      ]
+      """
+
+  Scenario: Equal damage on both sides deals no damage
+    Given player "01HRESEED0000000000000P201" connects to the session channel for "01HRESEED000000000000000S2"
+    And player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
+    When player "01HRESEED0000000000000P201" emits "attack" with:
+      """
+      { "quickTimeEventMultiplier": 1.50, "attackingCharacter": "IRIS", "attackedCharacter": "SKYE" }
+      """
+    Then player "01HRESEED0000000000000P201" receives "attacked"
+    When player "01HRESEED0000000000000P202" emits "defend" with:
+      """
+      { "quickTimeEventMultiplier": 1.50 }
+      """
+    Then player "01HRESEED0000000000000P202" receives "turnChanged"
+    And I identify as player "01HRESEED0000000000000P202"
+    When I send a "GET" request to "/api/v1/my-characters"
+    Then the response status should be 200
+    And the response body should contain:
+      """
+      [
+        { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 } },
+        { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 } },
+        { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 } },
+        { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 } },
+        { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 } }
+      ]
+      """
+
+  Scenario: A player cannot attack with an out-of-range quick time multiplier
+    Given player "01HRESEED0000000000000P201" connects to the session channel for "01HRESEED000000000000000S2"
+    When player "01HRESEED0000000000000P201" emits "attack" with:
+      """
+      { "quickTimeEventMultiplier": 2.50, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+      """
+    Then player "01HRESEED0000000000000P201" receives "exception" with:
+      """
+      {
+        "status": "error",
+        "message": "Message validation failed.",
+        "violations": {
+          "quickTimeEventMultiplier": ["quickTimeEventMultiplier must not be greater than 2"]
+        }
+      }
+      """
+
   Scenario: A player cannot attack when it is not their turn
     Given player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
-    When player "01HRESEED0000000000000P202" emits "attack"
+    When player "01HRESEED0000000000000P202" emits "attack" with:
+      """
+      { "quickTimeEventMultiplier": 1.50, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+      """
     Then player "01HRESEED0000000000000P202" receives "exception" with:
       """
       {
         "status": "error",
         "message": "It is not your turn to attack.",
-        "cause": { "pattern": "attack" }
+        "cause": {
+          "pattern": "attack",
+          "data": { "quickTimeEventMultiplier": 1.50, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+        }
       }
       """
 
   Scenario: A player cannot defend when no attack is pending
     Given player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
-    When player "01HRESEED0000000000000P202" emits "defend"
+    When player "01HRESEED0000000000000P202" emits "defend" with:
+      """
+      { "quickTimeEventMultiplier": 1.50 }
+      """
     Then player "01HRESEED0000000000000P202" receives "exception" with:
       """
       {
         "status": "error",
         "message": "There is no attack to defend against.",
-        "cause": { "pattern": "defend" }
+        "cause": {
+          "pattern": "defend",
+          "data": { "quickTimeEventMultiplier": 1.50 }
+        }
       }
       """
 

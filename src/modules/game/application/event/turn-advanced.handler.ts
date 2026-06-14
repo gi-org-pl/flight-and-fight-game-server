@@ -1,5 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { TurnAdvancedEvent } from '../../../session/model/event/turn-advanced.event';
+import { TurnAdvancedEvent } from '../../model/event/turn-advanced.event';
 import { GameGateway } from '../../infra/ws/game.gateway';
 
 @EventsHandler(TurnAdvancedEvent)

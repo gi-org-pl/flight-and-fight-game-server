@@ -4,9 +4,9 @@ import {
   EventsHandler,
   IEventHandler,
 } from '@nestjs/cqrs';
-import { AttackDefendedEvent } from '../../../game/model/event/attack-defended.event';
-import { AdvanceTurnCommand } from '../command/advance-turn.command';
+import { AttackDefendedEvent } from '../../model/event/attack-defended.event';
 import { TurnAdvancedEvent } from '../../model/event/turn-advanced.event';
+import { AdvanceTurnCommand } from '../command/advance-turn.command';
 
 @EventsHandler(AttackDefendedEvent)
 export class AttackDefendedHandler implements IEventHandler<AttackDefendedEvent> {
