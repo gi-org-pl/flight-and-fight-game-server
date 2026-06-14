@@ -24,12 +24,6 @@ export class NoAttackToDefendError extends WsException {
   }
 }
 
-export class InvalidCharacterSelectionError extends WsException {
-  constructor() {
-    super('You must select exactly 5 unique known characters.');
-  }
-}
-
 export class CharactersLockedError extends WsException {
   constructor() {
     super('Characters can no longer be changed.');

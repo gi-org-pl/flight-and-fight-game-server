@@ -17,24 +17,20 @@ import {
   Session,
   SessionState,
 } from '../../../session/infra/database/entity/session.entity';
-import {
-  Character,
-  CharacterType,
-} from '../../../session/model/character/character.model';
+import { Character } from '../../../session/model/character/character.model';
 import { AttackDefendedEvent } from '../../model/event/attack-defended.event';
 import { CharactersSelectedEvent } from '../../model/event/characters-selected.event';
 import {
   AttackAlreadyPendingError,
   CharactersLockedError,
-  InvalidCharacterSelectionError,
   NoAttackToDefendError,
   NotDefendingPlayerError,
   NotYourTurnError,
 } from '../../model/error/game.error';
+import { createWsValidationPipe } from '../../../../core/infra/ws/validation/ws-validation.pipe';
+import { SelectCharactersMessage } from './dto/select-characters.message';
 
-interface SelectCharactersMessage {
-  characters?: unknown;
-}
+const selectCharactersValidation = createWsValidationPipe();
 
 interface GameSocket extends Socket {
   data: { playerId: string; sessionId: string };
@@ -44,9 +40,7 @@ interface GameSocket extends Socket {
 export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer()
   private readonly server: Server;
-
   private readonly logger = new Logger(GameGateway.name);
-
   private readonly pendingAttacks = new Set<string>();
 
   constructor(
@@ -112,7 +106,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   @SubscribeMessage('selectCharacters')
   async onSelectCharacters(
     @ConnectedSocket() client: GameSocket,
-    @MessageBody() body: SelectCharactersMessage,
+    @MessageBody(selectCharactersValidation) body: SelectCharactersMessage,
   ): Promise<void> {
     const { playerId, sessionId } = client.data;
     const session = await this.getSession(sessionId);
@@ -121,12 +115,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       throw new CharactersLockedError();
     }
 
-    const characters = this.parseSelection(body);
     this.logger.log(
       `Player ${playerId} selected characters in session ${sessionId}`,
     );
     this.eventBus.publish(
-      new CharactersSelectedEvent(sessionId, playerId, characters),
+      new CharactersSelectedEvent(sessionId, playerId, body.characters),
     );
   }
 
@@ -138,22 +131,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
 
   async broadcastReady(sessionId: string): Promise<void> {
     this.server.to(sessionId).emit('ready', await this.getSession(sessionId));
-  }
-
-  private parseSelection(body: SelectCharactersMessage): CharacterType[] {
-    const characters = body?.characters;
-    const known = Object.values(CharacterType) as string[];
-
-    if (
-      !Array.isArray(characters) ||
-      characters.length !== 5 ||
-      new Set(characters).size !== 5 ||
-      !characters.every((character) => known.includes(character as string))
-    ) {
-      throw new InvalidCharacterSelectionError();
-    }
-
-    return characters as CharacterType[];
   }
 
   private opponentOf(session: Session, playerId: string): string {
