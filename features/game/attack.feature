@@ -336,6 +336,74 @@ Feature: As a player I attack and defend in real time
       ]
       """
 
+  Scenario: When a player's last character dies the game ends and the session is finished
+    Given player "01HRESEED0000000000000P401" connects to the session channel for "01HRESEED000000000000000S4"
+    And player "01HRESEED0000000000000P402" connects to the session channel for "01HRESEED000000000000000S4"
+    When player "01HRESEED0000000000000P401" emits "attack" with:
+      """
+      { "quickTimeEventMultiplier": 2.0, "attackingCharacter": "IRIS", "attackedCharacter": "VEGA" }
+      """
+    Then player "01HRESEED0000000000000P401" receives "attacked"
+    When player "01HRESEED0000000000000P402" emits "defend" with:
+      """
+      { "quickTimeEventMultiplier": 1.0 }
+      """
+    Then player "01HRESEED0000000000000P401" receives "characterDied" with:
+      """
+      { "playerId": "01HRESEED0000000000000P402", "character": "VEGA" }
+      """
+    And player "01HRESEED0000000000000P401" receives "gameFinished" with:
+      """
+      { "winnerId": "01HRESEED0000000000000P401", "loserId": "01HRESEED0000000000000P402" }
+      """
+    And player "01HRESEED0000000000000P402" receives "gameFinished" with:
+      """
+      { "winnerId": "01HRESEED0000000000000P401", "loserId": "01HRESEED0000000000000P402" }
+      """
+    When I send a "GET" request to "/api/v1/sessions/01HRESEED000000000000000S4"
+    Then the response status should be 200
+    And the response body should contain:
+      """
+      {
+        "id": "01HRESEED000000000000000S4",
+        "state": "FINISHED",
+        "firstPlayerId": "01HRESEED0000000000000P401",
+        "secondPlayerId": "01HRESEED0000000000000P402",
+        "currentlyAttackingPlayerId": "01HRESEED0000000000000P401",
+        "createdAt": "@date('within 1 minute from now')",
+        "updatedAt": "@date('within 1 minute from now')"
+      }
+      """
+
+  Scenario: A player cannot attack once the game has finished
+    Given player "01HRESEED0000000000000P401" connects to the session channel for "01HRESEED000000000000000S4"
+    And player "01HRESEED0000000000000P402" connects to the session channel for "01HRESEED000000000000000S4"
+    When player "01HRESEED0000000000000P401" emits "attack" with:
+      """
+      { "quickTimeEventMultiplier": 2.0, "attackingCharacter": "IRIS", "attackedCharacter": "VEGA" }
+      """
+    Then player "01HRESEED0000000000000P401" receives "attacked"
+    When player "01HRESEED0000000000000P402" emits "defend" with:
+      """
+      { "quickTimeEventMultiplier": 1.0 }
+      """
+    Then player "01HRESEED0000000000000P401" receives "gameFinished"
+    When player "01HRESEED0000000000000P401" emits "attack" with:
+      """
+      { "quickTimeEventMultiplier": 1.5, "attackingCharacter": "IRIS", "attackedCharacter": "SUNNY" }
+      """
+    Then player "01HRESEED0000000000000P401" receives "exception" with:
+      """
+      {
+        "status": "error",
+        "message": "The game has already finished.",
+        "cause": {
+          "pattern": "attack",
+          "data": { "quickTimeEventMultiplier": 1.5, "attackingCharacter": "IRIS", "attackedCharacter": "SUNNY" }
+        }
+      }
+      """
+
   Scenario: A player cannot attack with an out-of-range quick time multiplier
     Given player "01HRESEED0000000000000P201" connects to the session channel for "01HRESEED000000000000000S2"
     When player "01HRESEED0000000000000P201" emits "attack" with:

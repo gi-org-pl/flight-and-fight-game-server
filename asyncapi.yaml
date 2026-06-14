@@ -56,6 +56,8 @@ channels:
         $ref: '#/components/messages/turnChanged'
       characterDied:
         $ref: '#/components/messages/characterDied'
+      gameFinished:
+        $ref: '#/components/messages/gameFinished'
       exception:
         $ref: '#/components/messages/exception'
 
@@ -97,10 +99,13 @@ operations:
       quick-time multiplier. The server compares the attacker's and defender's
       damage and subtracts the larger from the losing character; equal damage
       deals nothing. If the hit drops a character's health to zero it dies and a
-      `characterDied` message is broadcast. Completes the turn, flipping
-      `currentlyAttackingPlayerId` to the other player. Rejected with an
-      `exception` if the sender is the attacker, no attack is pending, or the
-      payload fails validation.
+      `characterDied` message is broadcast. When that was a player's last living
+      character the game ends: the session becomes `FINISHED` and a
+      `gameFinished` message is broadcast instead of advancing the turn.
+      Otherwise the turn completes, flipping `currentlyAttackingPlayerId` to the
+      other player. Rejected with an `exception` if the sender is the attacker,
+      no attack is pending, the game is already finished, or the payload fails
+      validation.
     messages:
       - $ref: '#/channels/game/messages/defend'
   session:
@@ -149,6 +154,17 @@ operations:
     description: Identifies the owning player and the character that died.
     messages:
       - $ref: '#/channels/game/messages/characterDied'
+  gameFinished:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    summary: Broadcast to the room when a player loses their last character.
+    description: >
+      Sent once the session becomes `FINISHED`. Identifies the winner (the
+      player with characters still alive) and the loser (whose last character
+      just died). No further `attack`/`defend` is accepted.
+    messages:
+      - $ref: '#/channels/game/messages/gameFinished'
   exception:
     action: send
     channel:
@@ -207,6 +223,11 @@ components:
       title: Character died
       payload:
         $ref: '#/components/schemas/CharacterDied'
+    gameFinished:
+      name: gameFinished
+      title: Game finished
+      payload:
+        $ref: '#/components/schemas/GameFinished'
     exception:
       name: exception
       title: Error
@@ -224,6 +245,7 @@ components:
         - WAITING_FOR_SECOND_PLAYER
         - WAITING_FOR_CHARACTER_CHOICE
         - READY
+        - FINISHED
 
     Session:
       type: object
@@ -359,6 +381,14 @@ components:
           $ref: '#/components/schemas/Ulid'
         character:
           $ref: '#/components/schemas/CharacterType'
+
+    GameFinished:
+      type: object
+      properties:
+        winnerId:
+          $ref: '#/components/schemas/Ulid'
+        loserId:
+          $ref: '#/components/schemas/Ulid'
 
     Exception:
       oneOf:

@@ -23,9 +23,11 @@ import {
 } from '../../../session/model/character/character.model';
 import { AttackDefendedEvent } from '../../model/event/attack-defended.event';
 import { CharactersSelectedEvent } from '../../model/event/characters-selected.event';
+import { GameFinishedEvent } from '../../model/event/game-finished.event';
 import {
   AttackAlreadyPendingError,
   CharactersLockedError,
+  GameAlreadyFinishedError,
   NoAttackToDefendError,
   NotDefendingPlayerError,
   NotYourTurnError,
@@ -82,6 +84,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     const { playerId, sessionId } = client.data;
     const session = await this.getSession(sessionId);
 
+    if (session.state === SessionState.FINISHED) {
+      throw new GameAlreadyFinishedError();
+    }
     if (session.currentlyAttackingPlayerId !== playerId) {
       throw new NotYourTurnError();
     }
@@ -118,6 +123,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     const { playerId, sessionId } = client.data;
     const session = await this.getSession(sessionId);
 
+    if (session.state === SessionState.FINISHED) {
+      throw new GameAlreadyFinishedError();
+    }
     if (session.currentlyAttackingPlayerId === playerId) {
       throw new NotDefendingPlayerError();
     }
@@ -127,6 +135,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     }
 
     this.pendingAttacks.delete(sessionId);
+    this.logger.log(`Player ${playerId} defended in session ${sessionId}`);
 
     const resolution = resolveAttack(
       pending,
@@ -142,9 +151,23 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
           resolution.damage,
         ),
       );
+
+      const survivors = await this.queryBus.execute<
+        GetMyCharactersQuery,
+        OwnedCharacter[]
+      >(new GetMyCharactersQuery(resolution.targetPlayerId));
+      if (survivors.every((character) => character.isDead)) {
+        this.eventBus.publish(
+          new GameFinishedEvent(
+            sessionId,
+            this.opponentOf(session, resolution.targetPlayerId),
+            resolution.targetPlayerId,
+          ),
+        );
+        return;
+      }
     }
 
-    this.logger.log(`Player ${playerId} defended in session ${sessionId}`);
     this.eventBus.publish(new AttackDefendedEvent(sessionId));
   }
 
@@ -184,6 +207,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     character: CharacterType,
   ): void {
     this.server.to(sessionId).emit('characterDied', { playerId, character });
+  }
+
+  broadcastGameFinished(
+    sessionId: string,
+    winnerId: string,
+    loserId: string,
+  ): void {
+    this.server.to(sessionId).emit('gameFinished', { winnerId, loserId });
   }
 
   private opponentOf(session: Session, playerId: string): string {

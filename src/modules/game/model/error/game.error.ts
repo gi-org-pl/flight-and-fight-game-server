@@ -29,3 +29,9 @@ export class CharactersLockedError extends WsException {
     super('Characters can no longer be changed.');
   }
 }
+
+export class GameAlreadyFinishedError extends WsException {
+  constructor() {
+    super('The game has already finished.');
+  }
+}

@@ -28,6 +28,12 @@ const seedCharacterRows = seedCharacters.map((type) => {
   };
 });
 
+const nearlyDefeatedRows = seedCharacterRows.map((row) =>
+  row.characterType === CharacterType.VEGA
+    ? { ...row, health: 2, isDead: false }
+    : { ...row, health: 0, isDead: true },
+);
+
 export const seedSessions = {
   waitingForSecondPlayer: {
     id: '01HRESEED000000000000000S1',
@@ -42,6 +48,11 @@ export const seedSessions = {
     id: '01HRESEED000000000000000S3',
     firstPlayerId: '01HRESEED0000000000000P301',
     secondPlayerId: '01HRESEED0000000000000P302',
+  },
+  onePlayerNearlyDefeated: {
+    id: '01HRESEED000000000000000S4',
+    firstPlayerId: '01HRESEED0000000000000P401',
+    secondPlayerId: '01HRESEED0000000000000P402',
   },
 };
 
@@ -69,6 +80,14 @@ async function seed(): Promise<void> {
     {
       id: seedSessions.waitingForCharacterChoice.secondPlayerId,
     },
+    {
+      id: seedSessions.onePlayerNearlyDefeated.firstPlayerId,
+      characters: seedCharacterRows.map((row) => ({ ...row })),
+    },
+    {
+      id: seedSessions.onePlayerNearlyDefeated.secondPlayerId,
+      characters: nearlyDefeatedRows.map((row) => ({ ...row })),
+    },
   ]);
 
   const sessions = dataSource.getRepository(Session);
@@ -93,6 +112,14 @@ async function seed(): Promise<void> {
       firstPlayerId: seedSessions.waitingForCharacterChoice.firstPlayerId,
       secondPlayerId: seedSessions.waitingForCharacterChoice.secondPlayerId,
       currentlyAttackingPlayerId: null,
+    },
+    {
+      id: seedSessions.onePlayerNearlyDefeated.id,
+      state: SessionState.READY,
+      firstPlayerId: seedSessions.onePlayerNearlyDefeated.firstPlayerId,
+      secondPlayerId: seedSessions.onePlayerNearlyDefeated.secondPlayerId,
+      currentlyAttackingPlayerId:
+        seedSessions.onePlayerNearlyDefeated.firstPlayerId,
     },
   ]);
 
