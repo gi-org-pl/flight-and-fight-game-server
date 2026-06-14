@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SessionRepository } from '../../infra/database/repository/session.repository';
-import { SessionNotFoundError } from '../../model/error/session.error';
+import { SessionRepository } from '../../../session/infra/database/repository/session.repository';
+import { SessionNotFoundError } from '../../../session/model/error/session.error';
 
 export class AdvanceTurnCommand {
   constructor(public readonly sessionId: string) {}

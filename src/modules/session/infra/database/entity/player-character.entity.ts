@@ -23,7 +23,14 @@ export class PlayerCharacter {
   @Column('int')
   power: number;
 
-  @Column('int')
+  @Column('numeric', {
+    precision: 5,
+    scale: 2,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+  })
   health: number;
 
   @ManyToOne(() => Player, (player) => player.characters, {

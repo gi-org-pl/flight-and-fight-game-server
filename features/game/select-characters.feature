@@ -53,10 +53,9 @@ Feature: As a player I choose my characters over the websocket
       """
       {
         "status": "error",
-        "message": "You must select exactly 5 unique known characters.",
-        "cause": {
-          "pattern": "selectCharacters",
-          "data": { "characters": ["IRIS", "SKYE", "SUNNY", "THORA"] }
+        "message": "Message validation failed.",
+        "violations": {
+          "characters": ["characters must contain at least 5 elements"]
         }
       }
       """

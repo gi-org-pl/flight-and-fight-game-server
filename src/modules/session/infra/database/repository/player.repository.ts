@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Character } from '../../../model/character/character.model';
+import {
+  Character,
+  CharacterType,
+} from '../../../model/character/character.model';
 import { Player } from '../entity/player.entity';
 import { PlayerCharacter } from '../entity/player-character.entity';
 
@@ -33,6 +36,20 @@ export class PlayerRepository {
         health: character.stats.health,
       })),
     );
+  }
+
+  async applyDamage(
+    playerId: string,
+    characterType: CharacterType,
+    amount: number,
+  ): Promise<void> {
+    await this.characters
+      .createQueryBuilder()
+      .update(PlayerCharacter)
+      .set({ health: () => 'GREATEST(0, "health" - :amount)' })
+      .where({ playerId, characterType })
+      .setParameter('amount', amount)
+      .execute();
   }
 
   async hasFullSelection(id: string): Promise<boolean> {

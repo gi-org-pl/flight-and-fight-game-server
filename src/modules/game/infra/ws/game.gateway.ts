@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { EventBus, QueryBus } from '@nestjs/cqrs';
+import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
 import {
   ConnectedSocket,
   MessageBody,
@@ -17,24 +17,28 @@ import {
   Session,
   SessionState,
 } from '../../../session/infra/database/entity/session.entity';
-import {
-  Character,
-  CharacterType,
-} from '../../../session/model/character/character.model';
+import { Character } from '../../../session/model/character/character.model';
 import { AttackDefendedEvent } from '../../model/event/attack-defended.event';
 import { CharactersSelectedEvent } from '../../model/event/characters-selected.event';
 import {
   AttackAlreadyPendingError,
   CharactersLockedError,
-  InvalidCharacterSelectionError,
   NoAttackToDefendError,
   NotDefendingPlayerError,
   NotYourTurnError,
 } from '../../model/error/game.error';
+import { createWsValidationPipe } from '../../../../core/infra/ws/validation/ws-validation.pipe';
+import { ApplyDamageCommand } from '../../application/command/apply-damage.command';
+import {
+  calculateDamage,
+  PendingAttack,
+  resolveAttack,
+} from '../../model/attack/attack-damage';
+import { AttackMessage } from './dto/attack.message';
+import { DefendMessage } from './dto/defend.message';
+import { SelectCharactersMessage } from './dto/select-characters.message';
 
-interface SelectCharactersMessage {
-  characters?: unknown;
-}
+const messageValidation = createWsValidationPipe();
 
 interface GameSocket extends Socket {
   data: { playerId: string; sessionId: string };
@@ -44,13 +48,12 @@ interface GameSocket extends Socket {
 export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer()
   private readonly server: Server;
-
   private readonly logger = new Logger(GameGateway.name);
-
-  private readonly pendingAttacks = new Set<string>();
+  private readonly pendingAttacks = new Map<string, PendingAttack>();
 
   constructor(
     private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
     private readonly eventBus: EventBus,
   ) {}
 
@@ -69,7 +72,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   }
 
   @SubscribeMessage('attack')
-  async onAttack(@ConnectedSocket() client: GameSocket): Promise<void> {
+  async onAttack(
+    @ConnectedSocket() client: GameSocket,
+    @MessageBody(messageValidation) body: AttackMessage,
+  ): Promise<void> {
     const { playerId, sessionId } = client.data;
     const session = await this.getSession(sessionId);
 
@@ -80,7 +86,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       throw new AttackAlreadyPendingError();
     }
 
-    this.pendingAttacks.add(sessionId);
+    this.pendingAttacks.set(sessionId, {
+      attackerId: playerId,
+      attackingCharacter: body.attackingCharacter,
+      attackedCharacter: body.attackedCharacter,
+      attackDamage: calculateDamage(
+        body.attackingCharacter,
+        body.attackedCharacter,
+        body.quickTimeEventMultiplier,
+      ),
+    });
     this.server.to(sessionId).emit('attacked', { attackingPlayerId: playerId });
     this.logger.log(`Player ${playerId} attacked in session ${sessionId}`);
 
@@ -93,18 +108,38 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   }
 
   @SubscribeMessage('defend')
-  async onDefend(@ConnectedSocket() client: GameSocket): Promise<void> {
+  async onDefend(
+    @ConnectedSocket() client: GameSocket,
+    @MessageBody(messageValidation) body: DefendMessage,
+  ): Promise<void> {
     const { playerId, sessionId } = client.data;
     const session = await this.getSession(sessionId);
 
     if (session.currentlyAttackingPlayerId === playerId) {
       throw new NotDefendingPlayerError();
     }
-    if (!this.pendingAttacks.has(sessionId)) {
+    const pending = this.pendingAttacks.get(sessionId);
+    if (!pending) {
       throw new NoAttackToDefendError();
     }
 
     this.pendingAttacks.delete(sessionId);
+
+    const resolution = resolveAttack(
+      pending,
+      playerId,
+      body.quickTimeEventMultiplier,
+    );
+    if (resolution) {
+      await this.commandBus.execute(
+        new ApplyDamageCommand(
+          resolution.targetPlayerId,
+          resolution.targetCharacter,
+          resolution.damage,
+        ),
+      );
+    }
+
     this.logger.log(`Player ${playerId} defended in session ${sessionId}`);
     this.eventBus.publish(new AttackDefendedEvent(sessionId));
   }
@@ -112,7 +147,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   @SubscribeMessage('selectCharacters')
   async onSelectCharacters(
     @ConnectedSocket() client: GameSocket,
-    @MessageBody() body: SelectCharactersMessage,
+    @MessageBody(messageValidation) body: SelectCharactersMessage,
   ): Promise<void> {
     const { playerId, sessionId } = client.data;
     const session = await this.getSession(sessionId);
@@ -121,12 +156,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       throw new CharactersLockedError();
     }
 
-    const characters = this.parseSelection(body);
     this.logger.log(
       `Player ${playerId} selected characters in session ${sessionId}`,
     );
     this.eventBus.publish(
-      new CharactersSelectedEvent(sessionId, playerId, characters),
+      new CharactersSelectedEvent(sessionId, playerId, body.characters),
     );
   }
 
@@ -138,22 +172,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
 
   async broadcastReady(sessionId: string): Promise<void> {
     this.server.to(sessionId).emit('ready', await this.getSession(sessionId));
-  }
-
-  private parseSelection(body: SelectCharactersMessage): CharacterType[] {
-    const characters = body?.characters;
-    const known = Object.values(CharacterType) as string[];
-
-    if (
-      !Array.isArray(characters) ||
-      characters.length !== 5 ||
-      new Set(characters).size !== 5 ||
-      !characters.every((character) => known.includes(character as string))
-    ) {
-      throw new InvalidCharacterSelectionError();
-    }
-
-    return characters as CharacterType[];
   }
 
   private opponentOf(session: Session, playerId: string): string {

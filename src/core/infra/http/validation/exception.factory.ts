@@ -12,7 +12,7 @@ export function createResponseFromErrorsList<T>(
   };
 }
 
-function formatValidationErrors(
+export function formatValidationErrors(
   errors: ValidationError[],
 ): Record<string, string[]> {
   const mappedErrors: Record<string, string[]> = {};
