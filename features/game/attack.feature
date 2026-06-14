@@ -8,7 +8,7 @@ Feature: As a player I attack and defend in real time
     And player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
     When player "01HRESEED0000000000000P201" emits "attack" with:
       """
-      { "quickTimeEventMultiplier": 2.00, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+      { "quickTimeEventMultiplier": 2.0, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
       """
     Then player "01HRESEED0000000000000P201" receives "attacked" with:
       """
@@ -42,7 +42,7 @@ Feature: As a player I attack and defend in real time
       """
     When player "01HRESEED0000000000000P202" emits "defend" with:
       """
-      { "quickTimeEventMultiplier": 1.00 }
+      { "quickTimeEventMultiplier": 1.0 }
       """
     Then player "01HRESEED0000000000000P201" receives "turnChanged" with:
       """
@@ -88,12 +88,12 @@ Feature: As a player I attack and defend in real time
     And player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
     When player "01HRESEED0000000000000P201" emits "attack" with:
       """
-      { "quickTimeEventMultiplier": 2.00, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+      { "quickTimeEventMultiplier": 2.0, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
       """
     Then player "01HRESEED0000000000000P201" receives "attacked"
     When player "01HRESEED0000000000000P202" emits "defend" with:
       """
-      { "quickTimeEventMultiplier": 1.00 }
+      { "quickTimeEventMultiplier": 1.0 }
       """
     Then player "01HRESEED0000000000000P202" receives "turnChanged"
     And I identify as player "01HRESEED0000000000000P202"
@@ -102,10 +102,22 @@ Feature: As a player I attack and defend in real time
     And the response body should contain:
       """
       [
-        { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 } },
+        {
+          "type": "IRIS",
+          "superpower": "LIGHT",
+          "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }
+        },
         { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 } },
-        { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 } },
-        { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 } },
+        {
+          "type": "SUNNY",
+          "superpower": "FIRE",
+          "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }
+        },
+        {
+          "type": "THORA",
+          "superpower": "ELECTRIC",
+          "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }
+        },
         { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 5 } }
       ]
       """
@@ -115,12 +127,12 @@ Feature: As a player I attack and defend in real time
     And player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
     When player "01HRESEED0000000000000P201" emits "attack" with:
       """
-      { "quickTimeEventMultiplier": 1.00, "attackingCharacter": "VEGA", "attackedCharacter": "SUNNY" }
+      { "quickTimeEventMultiplier": 1.0, "attackingCharacter": "VEGA", "attackedCharacter": "SUNNY" }
       """
     Then player "01HRESEED0000000000000P201" receives "attacked"
     When player "01HRESEED0000000000000P202" emits "defend" with:
       """
-      { "quickTimeEventMultiplier": 2.00 }
+      { "quickTimeEventMultiplier": 2.0 }
       """
     Then player "01HRESEED0000000000000P201" receives "turnChanged"
     And I identify as player "01HRESEED0000000000000P201"
@@ -129,10 +141,22 @@ Feature: As a player I attack and defend in real time
     And the response body should contain:
       """
       [
-        { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 } },
+        {
+          "type": "IRIS",
+          "superpower": "LIGHT",
+          "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }
+        },
         { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 } },
-        { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 } },
-        { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 } },
+        {
+          "type": "SUNNY",
+          "superpower": "FIRE",
+          "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }
+        },
+        {
+          "type": "THORA",
+          "superpower": "ELECTRIC",
+          "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }
+        },
         { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 5 } }
       ]
       """
@@ -142,12 +166,12 @@ Feature: As a player I attack and defend in real time
     And player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
     When player "01HRESEED0000000000000P201" emits "attack" with:
       """
-      { "quickTimeEventMultiplier": 1.50, "attackingCharacter": "IRIS", "attackedCharacter": "SKYE" }
+      { "quickTimeEventMultiplier": 1.5, "attackingCharacter": "IRIS", "attackedCharacter": "SKYE" }
       """
     Then player "01HRESEED0000000000000P201" receives "attacked"
     When player "01HRESEED0000000000000P202" emits "defend" with:
       """
-      { "quickTimeEventMultiplier": 1.50 }
+      { "quickTimeEventMultiplier": 1.5 }
       """
     Then player "01HRESEED0000000000000P202" receives "turnChanged"
     And I identify as player "01HRESEED0000000000000P202"
@@ -156,10 +180,22 @@ Feature: As a player I attack and defend in real time
     And the response body should contain:
       """
       [
-        { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 } },
+        {
+          "type": "IRIS",
+          "superpower": "LIGHT",
+          "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }
+        },
         { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 } },
-        { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 } },
-        { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 } },
+        {
+          "type": "SUNNY",
+          "superpower": "FIRE",
+          "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }
+        },
+        {
+          "type": "THORA",
+          "superpower": "ELECTRIC",
+          "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }
+        },
         { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 } }
       ]
       """
@@ -168,7 +204,7 @@ Feature: As a player I attack and defend in real time
     Given player "01HRESEED0000000000000P201" connects to the session channel for "01HRESEED000000000000000S2"
     When player "01HRESEED0000000000000P201" emits "attack" with:
       """
-      { "quickTimeEventMultiplier": 2.50, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+      { "quickTimeEventMultiplier": 2.5, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
       """
     Then player "01HRESEED0000000000000P201" receives "exception" with:
       """
@@ -185,7 +221,7 @@ Feature: As a player I attack and defend in real time
     Given player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
     When player "01HRESEED0000000000000P202" emits "attack" with:
       """
-      { "quickTimeEventMultiplier": 1.50, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+      { "quickTimeEventMultiplier": 1.5, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
       """
     Then player "01HRESEED0000000000000P202" receives "exception" with:
       """
@@ -194,7 +230,7 @@ Feature: As a player I attack and defend in real time
         "message": "It is not your turn to attack.",
         "cause": {
           "pattern": "attack",
-          "data": { "quickTimeEventMultiplier": 1.50, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
+          "data": { "quickTimeEventMultiplier": 1.5, "attackingCharacter": "SUNNY", "attackedCharacter": "VEGA" }
         }
       }
       """
@@ -203,7 +239,7 @@ Feature: As a player I attack and defend in real time
     Given player "01HRESEED0000000000000P202" connects to the session channel for "01HRESEED000000000000000S2"
     When player "01HRESEED0000000000000P202" emits "defend" with:
       """
-      { "quickTimeEventMultiplier": 1.50 }
+      { "quickTimeEventMultiplier": 1.5 }
       """
     Then player "01HRESEED0000000000000P202" receives "exception" with:
       """
@@ -212,7 +248,7 @@ Feature: As a player I attack and defend in real time
         "message": "There is no attack to defend against.",
         "cause": {
           "pattern": "defend",
-          "data": { "quickTimeEventMultiplier": 1.50 }
+          "data": { "quickTimeEventMultiplier": 1.5 }
         }
       }
       """
