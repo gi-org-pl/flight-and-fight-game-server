@@ -25,39 +25,151 @@ Feature: As a player I attack and defend in real time
     Then player "01HRESEED0000000000000P201" receives "charactersUpdated" with:
       """
       [
-        { "playerId": "01HRESEED0000000000000P201", "characters": [
-          { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }, "isDead": false },
-          { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 }, "isDead": false },
-          { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }, "isDead": false },
-          { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }, "isDead": false },
-          { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 }, "isDead": false }
-        ] },
-        { "playerId": "01HRESEED0000000000000P202", "characters": [
-          { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }, "isDead": false },
-          { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 }, "isDead": false },
-          { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }, "isDead": false },
-          { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }, "isDead": false },
-          { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 5 }, "isDead": false }
-        ] }
+        {
+          "playerId": "01HRESEED0000000000000P201",
+          "characters": [
+            {
+              "type": "IRIS",
+              "superpower": "LIGHT",
+              "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "SKYE",
+              "superpower": "AIR",
+              "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 },
+              "isDead": false
+            },
+            {
+              "type": "SUNNY",
+              "superpower": "FIRE",
+              "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "THORA",
+              "superpower": "ELECTRIC",
+              "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "VEGA",
+              "superpower": "GRASS",
+              "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 },
+              "isDead": false
+            }
+          ]
+        },
+        {
+          "playerId": "01HRESEED0000000000000P202",
+          "characters": [
+            {
+              "type": "IRIS",
+              "superpower": "LIGHT",
+              "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "SKYE",
+              "superpower": "AIR",
+              "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 },
+              "isDead": false
+            },
+            {
+              "type": "SUNNY",
+              "superpower": "FIRE",
+              "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "THORA",
+              "superpower": "ELECTRIC",
+              "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "VEGA",
+              "superpower": "GRASS",
+              "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 5 },
+              "isDead": false
+            }
+          ]
+        }
       ]
       """
     And player "01HRESEED0000000000000P202" receives "charactersUpdated" with:
       """
       [
-        { "playerId": "01HRESEED0000000000000P201", "characters": [
-          { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }, "isDead": false },
-          { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 }, "isDead": false },
-          { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }, "isDead": false },
-          { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }, "isDead": false },
-          { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 }, "isDead": false }
-        ] },
-        { "playerId": "01HRESEED0000000000000P202", "characters": [
-          { "type": "IRIS", "superpower": "LIGHT", "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 }, "isDead": false },
-          { "type": "SKYE", "superpower": "AIR", "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 }, "isDead": false },
-          { "type": "SUNNY", "superpower": "FIRE", "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 }, "isDead": false },
-          { "type": "THORA", "superpower": "ELECTRIC", "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 }, "isDead": false },
-          { "type": "VEGA", "superpower": "GRASS", "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 5 }, "isDead": false }
-        ] }
+        {
+          "playerId": "01HRESEED0000000000000P201",
+          "characters": [
+            {
+              "type": "IRIS",
+              "superpower": "LIGHT",
+              "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "SKYE",
+              "superpower": "AIR",
+              "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 },
+              "isDead": false
+            },
+            {
+              "type": "SUNNY",
+              "superpower": "FIRE",
+              "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "THORA",
+              "superpower": "ELECTRIC",
+              "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "VEGA",
+              "superpower": "GRASS",
+              "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 8 },
+              "isDead": false
+            }
+          ]
+        },
+        {
+          "playerId": "01HRESEED0000000000000P202",
+          "characters": [
+            {
+              "type": "IRIS",
+              "superpower": "LIGHT",
+              "stats": { "intelligence": 9, "defense": 4, "power": 4, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "SKYE",
+              "superpower": "AIR",
+              "stats": { "intelligence": 4, "defense": 4, "power": 7, "health": 7 },
+              "isDead": false
+            },
+            {
+              "type": "SUNNY",
+              "superpower": "FIRE",
+              "stats": { "intelligence": 3, "defense": 4, "power": 8, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "THORA",
+              "superpower": "ELECTRIC",
+              "stats": { "intelligence": 5, "defense": 3, "power": 8, "health": 6 },
+              "isDead": false
+            },
+            {
+              "type": "VEGA",
+              "superpower": "GRASS",
+              "stats": { "intelligence": 8, "defense": 3, "power": 6, "health": 5 },
+              "isDead": false
+            }
+          ]
+        }
       ]
       """
     And player "01HRESEED0000000000000P201" receives "turnChanged" with:
