@@ -55,6 +55,10 @@ export class SessionRepository {
     );
   }
 
+  async markFinished(id: string): Promise<void> {
+    await this.sessions.update({ id }, { state: SessionState.FINISHED });
+  }
+
   findById(id: string): Promise<Session | null> {
     return this.sessions.findOne({ where: { id } });
   }
