@@ -37,8 +37,10 @@ async function waitForEvent(
 ): Promise<{ event: string; payload: unknown } | undefined> {
   const deadline = Date.now() + 2000;
   while (Date.now() < deadline) {
-    const found = received.get(playerId)?.find((e) => e.event === event);
-    if (found) {
+    const events = received.get(playerId);
+    const index = events?.findIndex((e) => e.event === event) ?? -1;
+    if (events && index >= 0) {
+      const [found] = events.splice(index, 1);
       return found;
     }
     await new Promise((resolve) => setTimeout(resolve, 50));

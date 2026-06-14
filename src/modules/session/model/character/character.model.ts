@@ -42,3 +42,7 @@ export interface Character {
   superpower: Superpower;
   stats: CharacterStats;
 }
+
+export interface OwnedCharacter extends Character {
+  isDead: boolean;
+}

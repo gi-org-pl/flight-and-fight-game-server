@@ -42,14 +42,24 @@ export class PlayerRepository {
     playerId: string,
     characterType: CharacterType,
     amount: number,
-  ): Promise<void> {
-    await this.characters
-      .createQueryBuilder()
-      .update(PlayerCharacter)
-      .set({ health: () => 'GREATEST(0, "health" - :amount)' })
-      .where({ playerId, characterType })
-      .setParameter('amount', amount)
-      .execute();
+  ): Promise<{ newlyDied: boolean }> {
+    const character = await this.characters.findOneBy({
+      playerId,
+      characterType,
+    });
+    if (!character) {
+      return { newlyDied: false };
+    }
+
+    const remaining = character.health - amount;
+    const died = remaining <= 0;
+
+    await this.characters.update(
+      { playerId, characterType },
+      { health: died ? 0 : remaining, isDead: character.isDead || died },
+    );
+
+    return { newlyDied: !character.isDead && died };
   }
 
   async hasFullSelection(id: string): Promise<boolean> {

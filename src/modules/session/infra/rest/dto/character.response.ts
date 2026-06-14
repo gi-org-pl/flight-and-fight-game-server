@@ -26,3 +26,8 @@ export class CharacterResponse {
   @ApiProperty({ type: CharacterStatsResponse })
   stats: CharacterStatsResponse;
 }
+
+export class OwnedCharacterResponse extends CharacterResponse {
+  @ApiProperty({ example: false })
+  isDead: boolean;
+}

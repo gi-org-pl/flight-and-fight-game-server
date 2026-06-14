@@ -2,12 +2,22 @@ asyncapi: 3.0.0
 
 info:
   title: Flight and Fight game WebSocket API
-  version: 0.8.0
+  version: 0.11.0
   description: >
     Real-time game channel (socket.io). Two players connect to the same
     session, each submit their characters, and once both have chosen the game
     becomes READY. They then take turns attacking and defending, and the turn
     alternates after each completed exchange.
+
+
+    Each attack carries a quick-time multiplier and the attacking/attacked
+    character. Damage is `1 * quickTimeEventMultiplier * superpowerFactor`, where
+    the factor is 1.5 when the attacker's superpower is strong against the
+    defender's, 0.66 when it is weak, and 1 otherwise. Damage is resolved when
+    the defender defends (the defender's counter-damage uses the same formula
+    with the characters swapped): the larger of the two damages is subtracted
+    from the losing character, equal damage deals nothing. When a character's
+    health reaches zero it dies and a `characterDied` event is broadcast.
 
 
     Authentication is performed during the socket.io handshake: pass
@@ -44,6 +54,8 @@ channels:
         $ref: '#/components/messages/charactersUpdated'
       turnChanged:
         $ref: '#/components/messages/turnChanged'
+      characterDied:
+        $ref: '#/components/messages/characterDied'
       exception:
         $ref: '#/components/messages/exception'
 
@@ -67,9 +79,12 @@ operations:
       $ref: '#/channels/game'
     summary: The attacking player declares an attack.
     description: >
-      Emitted by the player whose turn it is (`currentlyAttackingPlayerId`).
-      Rejected with an `exception` if it is not the sender's turn or an attack
-      is already awaiting defense.
+      Emitted by the player whose turn it is (`currentlyAttackingPlayerId`),
+      carrying the quick-time multiplier (1.00–2.00) and the attacking and
+      attacked character types. The attacker's damage is computed now and held
+      until the defender defends. Rejected with an `exception` if it is not the
+      sender's turn, an attack is already awaiting defense, or the payload fails
+      validation.
     messages:
       - $ref: '#/channels/game/messages/attack'
   defend:
@@ -78,9 +93,14 @@ operations:
       $ref: '#/channels/game'
     summary: The defending player defends, completing the exchange.
     description: >
-      Emitted by the non-attacking player after an attack. Completes the turn,
-      flipping `currentlyAttackingPlayerId` to the other player. Rejected with an
-      `exception` if the sender is the attacker or no attack is pending.
+      Emitted by the non-attacking player after an attack, carrying their own
+      quick-time multiplier. The server compares the attacker's and defender's
+      damage and subtracts the larger from the losing character; equal damage
+      deals nothing. If the hit drops a character's health to zero it dies and a
+      `characterDied` message is broadcast. Completes the turn, flipping
+      `currentlyAttackingPlayerId` to the other player. Rejected with an
+      `exception` if the sender is the attacker, no attack is pending, or the
+      payload fails validation.
     messages:
       - $ref: '#/channels/game/messages/defend'
   session:
@@ -111,7 +131,7 @@ operations:
     action: send
     channel:
       $ref: '#/channels/game'
-    summary: Sent to the defending player after an attack with their characters' stats.
+    summary: Sent to the defending player when an attack is declared, with their characters' current stats.
     messages:
       - $ref: '#/channels/game/messages/charactersUpdated'
   turnChanged:
@@ -121,6 +141,14 @@ operations:
     summary: Broadcast to the room with the updated session after the turn flips.
     messages:
       - $ref: '#/channels/game/messages/turnChanged'
+  characterDied:
+    action: send
+    channel:
+      $ref: '#/channels/game'
+    summary: Broadcast to the room when a character's health reaches zero.
+    description: Identifies the owning player and the character that died.
+    messages:
+      - $ref: '#/channels/game/messages/characterDied'
   exception:
     action: send
     channel:
@@ -140,15 +168,15 @@ components:
     attack:
       name: attack
       title: Attack
-      summary: Declare an attack (no payload).
+      summary: Declare an attack with a quick-time multiplier and the attacking/attacked characters.
       payload:
-        $ref: '#/components/schemas/EmptyPayload'
+        $ref: '#/components/schemas/AttackCommand'
     defend:
       name: defend
       title: Defend
-      summary: Defend against the pending attack (no payload).
+      summary: Defend against the pending attack with a quick-time multiplier.
       payload:
-        $ref: '#/components/schemas/EmptyPayload'
+        $ref: '#/components/schemas/DefendCommand'
     session:
       name: session
       title: Session state
@@ -174,6 +202,11 @@ components:
       title: Turn changed
       payload:
         $ref: '#/components/schemas/Session'
+    characterDied:
+      name: characterDied
+      title: Character died
+      payload:
+        $ref: '#/components/schemas/CharacterDied'
     exception:
       name: exception
       title: Error
@@ -181,10 +214,6 @@ components:
         $ref: '#/components/schemas/Exception'
 
   schemas:
-    EmptyPayload:
-      type: object
-      additionalProperties: false
-
     Ulid:
       type: string
       example: 01ARZ3NDEKTSV4RRFFQ69G5FAV
@@ -238,6 +267,19 @@ components:
         - THORA
         - VEGA
 
+    Superpower:
+      type: string
+      enum:
+        - LIGHT
+        - DARK
+        - WATER
+        - GRASS
+        - FIRE
+        - ELECTRIC
+        - GROUND
+        - AIR
+        - ICE
+
     CharacterStats:
       type: object
       properties:
@@ -248,17 +290,21 @@ components:
         power:
           type: integer
         health:
-          type: integer
-        refresh:
-          type: integer
+          type: number
+          description: Current health; fractional after damage, 0 when the character is dead.
 
     Character:
       type: object
       properties:
         type:
           $ref: '#/components/schemas/CharacterType'
+        superpower:
+          $ref: '#/components/schemas/Superpower'
         stats:
           $ref: '#/components/schemas/CharacterStats'
+        isDead:
+          type: boolean
+          example: false
 
     CharacterList:
       type: array
@@ -276,8 +322,52 @@ components:
           items:
             $ref: '#/components/schemas/CharacterType'
 
-    Exception:
+    QuickTimeEventMultiplier:
+      type: number
+      minimum: 1
+      maximum: 2
+      example: 1.5
+
+    AttackCommand:
       type: object
+      additionalProperties: false
+      required:
+        - quickTimeEventMultiplier
+        - attackingCharacter
+        - attackedCharacter
+      properties:
+        quickTimeEventMultiplier:
+          $ref: '#/components/schemas/QuickTimeEventMultiplier'
+        attackingCharacter:
+          $ref: '#/components/schemas/CharacterType'
+        attackedCharacter:
+          $ref: '#/components/schemas/CharacterType'
+
+    DefendCommand:
+      type: object
+      additionalProperties: false
+      required:
+        - quickTimeEventMultiplier
+      properties:
+        quickTimeEventMultiplier:
+          $ref: '#/components/schemas/QuickTimeEventMultiplier'
+
+    CharacterDied:
+      type: object
+      properties:
+        playerId:
+          $ref: '#/components/schemas/Ulid'
+        character:
+          $ref: '#/components/schemas/CharacterType'
+
+    Exception:
+      oneOf:
+        - $ref: '#/components/schemas/BusinessException'
+        - $ref: '#/components/schemas/ValidationException'
+
+    BusinessException:
+      type: object
+      description: A rejected action, e.g. acting out of turn or defending with no pending attack.
       properties:
         status:
           type: string
@@ -291,3 +381,26 @@ components:
             pattern:
               type: string
               example: attack
+            data:
+              type: object
+              description: The payload that was sent with the rejected message.
+
+    ValidationException:
+      type: object
+      description: The message payload failed validation.
+      properties:
+        status:
+          type: string
+          example: error
+        message:
+          type: string
+          example: Message validation failed.
+        violations:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            quickTimeEventMultiplier:
+              - quickTimeEventMultiplier must not be greater than 2
