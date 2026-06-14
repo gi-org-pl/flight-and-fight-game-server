@@ -33,6 +33,9 @@ export class PlayerCharacter {
   })
   health: number;
 
+  @Column('boolean', { default: false })
+  isDead: boolean;
+
   @ManyToOne(() => Player, (player) => player.characters, {
     onDelete: 'CASCADE',
   })

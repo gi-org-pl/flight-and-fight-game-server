@@ -8,8 +8,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { GetMyCharactersQuery } from '../../application/query/get-my-characters.query';
-import { Character } from '../../model/character/character.model';
-import { CharacterResponse } from './dto/character.response';
+import { OwnedCharacter } from '../../model/character/character.model';
+import { OwnedCharacterResponse } from './dto/character.response';
 import { UnauthorizedResponse } from '../../../../core/infra/http/response/unauthorized.response';
 import { PlayerGuard } from '../../../../core/infra/auth/player.guard';
 import { CurrentPlayerId } from '../../../../core/infra/auth/current-player.decorator';
@@ -23,12 +23,12 @@ export class GetMyCharactersController {
   @UseGuards(PlayerGuard)
   @ApiOperation({ summary: "Returns the current player's selected characters" })
   @ApiBearerAuth('access-token')
-  @ApiOkResponse({ type: CharacterResponse, isArray: true })
+  @ApiOkResponse({ type: OwnedCharacterResponse, isArray: true })
   @ApiUnauthorizedResponse({ type: UnauthorizedResponse })
   getMyCharacters(
     @CurrentPlayerId() playerId: string,
-  ): Promise<CharacterResponse[]> {
-    return this.queryBus.execute<GetMyCharactersQuery, Character[]>(
+  ): Promise<OwnedCharacterResponse[]> {
+    return this.queryBus.execute<GetMyCharactersQuery, OwnedCharacter[]>(
       new GetMyCharactersQuery(playerId),
     );
   }

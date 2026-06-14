@@ -17,7 +17,10 @@ import {
   Session,
   SessionState,
 } from '../../../session/infra/database/entity/session.entity';
-import { Character } from '../../../session/model/character/character.model';
+import {
+  CharacterType,
+  OwnedCharacter,
+} from '../../../session/model/character/character.model';
 import { AttackDefendedEvent } from '../../model/event/attack-defended.event';
 import { CharactersSelectedEvent } from '../../model/event/characters-selected.event';
 import {
@@ -102,7 +105,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     const defenderId = this.opponentOf(session, playerId);
     const characters = await this.queryBus.execute<
       GetMyCharactersQuery,
-      Character[]
+      OwnedCharacter[]
     >(new GetMyCharactersQuery(defenderId));
     this.server.to(defenderId).emit('charactersUpdated', characters);
   }
@@ -133,6 +136,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     if (resolution) {
       await this.commandBus.execute(
         new ApplyDamageCommand(
+          sessionId,
           resolution.targetPlayerId,
           resolution.targetCharacter,
           resolution.damage,
@@ -172,6 +176,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
 
   async broadcastReady(sessionId: string): Promise<void> {
     this.server.to(sessionId).emit('ready', await this.getSession(sessionId));
+  }
+
+  broadcastCharacterDied(
+    sessionId: string,
+    playerId: string,
+    character: CharacterType,
+  ): void {
+    this.server.to(sessionId).emit('characterDied', { playerId, character });
   }
 
   private opponentOf(session: Session, playerId: string): string {

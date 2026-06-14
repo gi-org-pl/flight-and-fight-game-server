@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PlayerRepository } from '../../infra/database/repository/player.repository';
-import { Character } from '../../model/character/character.model';
+import { OwnedCharacter } from '../../model/character/character.model';
 import { PlayerNotFoundError } from '../../model/error/session.error';
 
 export class GetMyCharactersQuery {
@@ -10,11 +10,11 @@ export class GetMyCharactersQuery {
 @QueryHandler(GetMyCharactersQuery)
 export class GetMyCharactersHandler implements IQueryHandler<
   GetMyCharactersQuery,
-  Character[]
+  OwnedCharacter[]
 > {
   constructor(private readonly players: PlayerRepository) {}
 
-  async execute({ playerId }: GetMyCharactersQuery): Promise<Character[]> {
+  async execute({ playerId }: GetMyCharactersQuery): Promise<OwnedCharacter[]> {
     const player = await this.players.findById(playerId);
 
     if (!player) {
@@ -31,6 +31,7 @@ export class GetMyCharactersHandler implements IQueryHandler<
           power: character.power,
           health: character.health,
         },
+        isDead: character.isDead,
       }))
       .sort((a, b) => a.type.localeCompare(b.type));
   }
