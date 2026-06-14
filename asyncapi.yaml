@@ -136,7 +136,11 @@ operations:
     action: send
     channel:
       $ref: '#/channels/game'
-    summary: Sent to the defending player when an attack is declared, with their characters' current stats.
+    summary: Broadcast to both players after a defend, with each player's current character stats.
+    description: >
+      Sent once an exchange is resolved (after `defend`), so both players see the
+      up-to-date health and `isDead` of both rosters. Carries one entry per
+      player, first player then second.
     messages:
       - $ref: '#/channels/game/messages/charactersUpdated'
   turnChanged:
@@ -212,7 +216,7 @@ components:
       name: charactersUpdated
       title: Updated characters
       payload:
-        $ref: '#/components/schemas/CharacterList'
+        $ref: '#/components/schemas/PlayerRosters'
     turnChanged:
       name: turnChanged
       title: Turn changed
@@ -332,6 +336,17 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Character'
+
+    PlayerRosters:
+      type: array
+      description: Both players' rosters with current health, first player then second.
+      items:
+        type: object
+        properties:
+          playerId:
+            $ref: '#/components/schemas/Ulid'
+          characters:
+            $ref: '#/components/schemas/CharacterList'
 
     SelectCharacters:
       type: object

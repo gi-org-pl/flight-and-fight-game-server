@@ -106,13 +106,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     });
     this.server.to(sessionId).emit('attacked', { attackingPlayerId: playerId });
     this.logger.log(`Player ${playerId} attacked in session ${sessionId}`);
-
-    const defenderId = this.opponentOf(session, playerId);
-    const characters = await this.queryBus.execute<
-      GetMyCharactersQuery,
-      OwnedCharacter[]
-    >(new GetMyCharactersQuery(defenderId));
-    this.server.to(defenderId).emit('charactersUpdated', characters);
   }
 
   @SubscribeMessage('defend')
@@ -142,6 +135,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       playerId,
       body.quickTimeEventMultiplier,
     );
+    let defeated = false;
     if (resolution) {
       await this.commandBus.execute(
         new ApplyDamageCommand(
@@ -156,19 +150,39 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
         GetMyCharactersQuery,
         OwnedCharacter[]
       >(new GetMyCharactersQuery(resolution.targetPlayerId));
-      if (survivors.every((character) => character.isDead)) {
-        this.eventBus.publish(
-          new GameFinishedEvent(
-            sessionId,
-            this.opponentOf(session, resolution.targetPlayerId),
-            resolution.targetPlayerId,
-          ),
-        );
-        return;
-      }
+      defeated = survivors.every((character) => character.isDead);
+    }
+
+    await this.broadcastCharacters(session);
+
+    if (defeated && resolution) {
+      this.eventBus.publish(
+        new GameFinishedEvent(
+          sessionId,
+          this.opponentOf(session, resolution.targetPlayerId),
+          resolution.targetPlayerId,
+        ),
+      );
+      return;
     }
 
     this.eventBus.publish(new AttackDefendedEvent(sessionId));
+  }
+
+  private async broadcastCharacters(session: Session): Promise<void> {
+    const playerIds = [session.firstPlayerId, session.secondPlayerId as string];
+    const rosters = await Promise.all(
+      playerIds.map((id) =>
+        this.queryBus.execute<GetMyCharactersQuery, OwnedCharacter[]>(
+          new GetMyCharactersQuery(id),
+        ),
+      ),
+    );
+    const payload = playerIds.map((playerId, index) => ({
+      playerId,
+      characters: rosters[index],
+    }));
+    this.server.to(session.id).emit('charactersUpdated', payload);
   }
 
   @SubscribeMessage('selectCharacters')
